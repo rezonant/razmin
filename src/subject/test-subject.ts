@@ -1,10 +1,8 @@
-import { TestBuilder } from "./test-builder";
-import { Test } from "./test";
-import { TestFunction } from "./test-function";
-import { TestFactory } from "./test-factory";
-import { TestSubjectResult } from "./test-subject-result";
-import { TestResult } from "./test-result";
-import { TestExecutionSettings } from "./test-execution-settings";
+import { Test } from "../test";
+import { TestFunction } from "../test";
+import { TestSubjectResult } from "../subject";
+import { TestResult } from "../test";
+import { TestExecutionSettings } from "../core";
 
 /**
  * Represents a set of unit tests built around a single object under test ("subject")
@@ -23,21 +21,6 @@ export class TestSubject {
      */
     public get description() {
         return this._description;
-    }
-
-    /**
-     * Build a TestSubject by using an imperative TestFactory. The TestFactory passed in is executed 
-     * and provided with a TestBuilder which can be used to create individual tests.
-     * 
-     * Example: build('a thing', it => it('does things', () => expect(1).to.equal(2)))
-     * 
-     * @param description
-     * @param factory 
-     */
-    public static build(description : string, factory : TestFactory): TestSubject {
-        let subject = new TestSubject(description);
-        factory((testDescription : string, func : TestFunction) => subject.addTest(testDescription, func));
-        return subject;
     }
     
     /**

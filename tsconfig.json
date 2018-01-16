@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": "src/",
         "declaration": true,
         "module": "commonjs",
         "moduleResolution": "node",
@@ -13,6 +14,7 @@
     },
     "include": [
         "./src/**/*.ts",
+        "./test/**/*.ts",
         "./*.ts"
     ]
 }

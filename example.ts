@@ -1,4 +1,4 @@
-import { suite } from './src/suite';
+import { suite } from './src';
 import { expect } from 'chai';
 
 suite(describe => {

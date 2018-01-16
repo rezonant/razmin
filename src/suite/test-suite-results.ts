@@ -1,5 +1,4 @@
-import { TestSubjectResult } from "./test-subject-result";
-
+import { TestSubjectResult } from "../subject";
 
 export class TestSuiteResults {
     public constructor(
@@ -9,6 +8,10 @@ export class TestSuiteResults {
 
     public get subjectResults() {
         return this._subjectResults;
+    }
+
+    public get passed() {
+        return this._subjectResults.map(x => x.passed).indexOf(false) < 0;
     }
 
     public report() {

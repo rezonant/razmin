@@ -1,6 +1,6 @@
 export interface TestExecutionSettingsDef {
-    contextName : string;
     timeout? : number;
+    contextName? : string;    
 }
 
 export class TestExecutionSettings implements TestExecutionSettingsDef {

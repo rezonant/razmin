@@ -2,9 +2,8 @@ import "zone.js";
 
 import { TestResult } from "./test-result";
 import { TestFunction } from "./test-function";
-import { delay } from './util/timeout';
-import { TestExecutionSettings } from "./test-execution-settings";
-import { TestZone } from "./test-zone";
+import { delay, TestZone } from '../util';
+import { TestExecutionSettings } from "../core";
 
 /**
  * Represents a unit test which can run itself.
