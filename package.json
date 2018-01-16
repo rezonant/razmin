@@ -1,0 +1,22 @@
+{
+  "name": "@rezonant/testcore",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.0",
+    "chai": "^4.1.2"
+  },
+  "dependencies": {
+    "@types/node": "^9.3.0",
+    "rxjs": "^5.5.6",
+    "timeout-as-promise": "^1.0.0",
+    "zone.js": "^0.8.20",
+    "source-map-support": "^0.5.0"
+  }
+}
