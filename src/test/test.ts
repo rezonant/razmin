@@ -53,8 +53,8 @@ export class Test {
      * 
      * @param executionSettings 
      */
-    public async run(executionSettings : TestExecutionSettings, contextName : string): Promise<TestResult> {
-        executionSettings = executionSettings.clone({ contextName });
+    public async run(executionSettings? : TestExecutionSettings, contextName? : string): Promise<TestResult> {
+        executionSettings = (executionSettings || new TestExecutionSettings()).clone({ contextName });
         
         let timeOutToken = {};
         let timeout = delay(executionSettings.timeout || 10*1000, timeOutToken);

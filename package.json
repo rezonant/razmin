@@ -4,7 +4,8 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "tsc && node dist/test/test"
   },
   "author": "",
   "license": "MIT",
@@ -15,9 +16,10 @@
   },
   "dependencies": {
     "@types/node": "^9.3.0",
+    "colors": "^1.1.2",
     "rxjs": "^5.5.6",
+    "source-map-support": "^0.5.0",
     "timeout-as-promise": "^1.0.0",
-    "zone.js": "^0.8.20",
-    "source-map-support": "^0.5.0"
+    "zone.js": "^0.8.20"
   }
 }

@@ -4,8 +4,9 @@ export interface TestExecutionSettingsDef {
 }
 
 export class TestExecutionSettings implements TestExecutionSettingsDef {
-    public constructor(def : TestExecutionSettingsDef) {
-        Object.assign(this, def);
+    public constructor(def? : TestExecutionSettingsDef) {
+        if (def)
+            Object.assign(this, def);
     }
     contextName : string;
     timeout : number = 10 * 1000;

@@ -38,6 +38,9 @@ export class TestZone {
             onHandleError(delegate, current, target, error) {
                 delegate.handleError(target, error);
 
+                if (current !== target)
+                    return;
+                    
                 self.runOutside(() => self._onError.next(error));
                 return false;
             }

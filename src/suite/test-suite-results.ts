@@ -1,4 +1,5 @@
 import { TestSubjectResult } from "../subject";
+import * as colors from 'colors/safe';
 
 export class TestSuiteResults {
     public constructor(
@@ -17,8 +18,10 @@ export class TestSuiteResults {
     public report() {
         for (let subjectResult of this._subjectResults) {
             for (let testResult of subjectResult.tests) {
-                console.log(`(${testResult.passed ? 'PASS' : 'FAIL'}) ${subjectResult.description} ${testResult.description}`);
-                if (!testResult.passed) {
+                if (testResult.passed) {
+                    console.log(colors.green(`[ ✓ ] ${subjectResult.description} ${testResult.description}`));
+                } else {
+                    console.log(colors.red(`[ ✗ ] ${subjectResult.description} ${testResult.description}`));
                     console.log(` - ${testResult.message}`);
                 }
             }
