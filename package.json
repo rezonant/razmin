@@ -1,7 +1,7 @@
 {
   "name": "razmin",
   "version": "0.0.3",
-  "description": "",
+  "description": "A testing framework for modern Javascript.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "scripts": {
@@ -9,8 +9,12 @@
     "test": "npm run build && node ./dist/test/test",
     "prepublish": "npm run test"
   },
-  "author": "",
+  "author": "William Lahti",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rezonant/razmin.git"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.0",
     "@types/node": "^9.3.0",
