@@ -2,7 +2,8 @@
   "name": "razmin",
   "version": "0.0.1",
   "description": "",
-  "main": "./dist/index.js",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "build": "node ./node_modules/typescript/bin/tsc",
     "test": "npm run build && node ./dist/test/test",

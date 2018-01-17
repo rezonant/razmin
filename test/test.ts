@@ -69,7 +69,7 @@ export async function runSanityTests() {
 
 async function runTests() {
     console.log('Running test suite...');
-    suite(describe => {
+    return await suite(describe => {
         describe('TestSuite', it => {
             it('should run its suites', async () => {
                 let suite = new TestSuite();
@@ -329,9 +329,12 @@ async function runTests() {
 export async function main() {
     try {
         await runSanityTests();
-        await runTests();
+        let results = await runTests();
+        if (!results.passed)
+            process.exit(1);
     } catch (e) {
         console.error(e);
+        process.exit(1);
     }
 }
 

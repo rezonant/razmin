@@ -5,8 +5,9 @@ import { Reporter } from '../reporting';
 import { TestExecutionSettings, TestExecutionSettingsDef } from "../core";
 import { TestSubject } from "../subject";
 import { TestFunction } from "../test";
-import { TestSuiteFactory } from "./index";
-import { TestSuiteResults } from "index";
+import { TestSuiteResults } from "../suite";
+
+import { TestSuiteFactory } from "./test-suite-factory";
 
 export interface DslSettings {
     reporters? : Reporter[];
