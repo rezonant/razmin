@@ -44,6 +44,31 @@ export async function test() {
                 if (results.passed)
                     throw new Error(`Should not accept a suite that throws exceptions`);
             }
+        ],
+        [
+            'nested suites should merge',
+            async () => {
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will succeed', () => { });
+                        it('will also succeed', () => { });
+                    });
+
+                    suite(describe => {
+                        describe('a problematic thing', it => {
+                            it('will fail', () => { throw new Error('This is an error'); })
+                        })
+                    });
+                }, {
+                    reporters: []
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Nested suites should become part of the top-level suite`);
+            }
         ]
     ];
 
