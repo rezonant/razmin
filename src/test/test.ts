@@ -113,7 +113,7 @@ export class Test {
                     `       ${colors.gray('at')} ${colors.white(stackLine)}`
                     : '')
                 + (showStack? 
-                    `${colors.gray(deepStackLines.join("\n"))}`
+                    `\n${colors.gray(deepStackLines.join("\n"))}`
                     : '')
             );
         } finally {
