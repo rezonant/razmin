@@ -54,7 +54,7 @@ export class TestSubject {
      * Run all tests that deal with this test subject.
      * @param testExecutionSettings 
      */
-    public async run(testExecutionSettings : TestExecutionSettings): Promise<TestSubjectResult> {
+    public async run(testExecutionSettings? : TestExecutionSettings): Promise<TestSubjectResult> {
         return new TestSubjectResult(this._description, 
             await Promise.all(this._tests.map (test => this.runTest(test, testExecutionSettings)))
         );

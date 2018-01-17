@@ -17,8 +17,11 @@ export class TestSuite {
         }
     }
 
-    _subjects : TestSubject[] = [];
-    ;
+    private _subjects : TestSubject[] = [];
+
+    public get subjects() {
+        return this._subjects.slice();
+    }
 
     public get testExecutionSettings() {
         return this._testExecutionSettings;

@@ -1,4 +1,5 @@
 import "zone.js";
+import * as colors from 'colors/safe';
 
 import { TestResult } from "./test-result";
 import { TestFunction } from "./test-function";
@@ -76,16 +77,45 @@ export class Test {
         
             // Execution has completed successfully.
             
-            return new TestResult(this._description, true);
+            return new TestResult(this._description, true, "Success");
             
         } catch (e) {
             // An exception was caught while handling the test.
             // Produce a result which indicates the error.
 
-            if (e instanceof Error)
-                e = `${e.message}: ${e.stack}`;
+            let indent = '     ';
+            let message = e.message ? e.message : e+"";
+            let stackLine = null;
+            let deepStackLines = [];
+            
+            if (e.stack) {
+                let stack = e.stack+"";
+                let parts = (stack || '').split(/\n/g);
+                stackLine = (parts[1] || '').replace(/^ *at /, '');
+                deepStackLines = 
+                    (`           ${stack}`)
+                    .replace(/^[^\n]*\n/, '')           // remove first line
+                    .replace(/^ *at ?/gm, '')           // remove "at"
+                    .replace(/\n/g, "\n          ")     // indent all lines
+                    .split(/\n/g)
+                    .slice(1)
+                ;
+            }
 
-            return new TestResult(this._description, false, e.toString());
+            let showStack = true;
+
+            if (e.constructor.name == "AssertionError")
+                showStack = false;
+
+            return new TestResult(this._description, false, 
+                `${indent}${colors.red('×')} ${message}\n` 
+                + (stackLine? 
+                    `       ${colors.gray('at')} ${colors.white(stackLine)}`
+                    : '')
+                + (showStack? 
+                    `${colors.gray(deepStackLines.join("\n"))}`
+                    : '')
+            );
         } finally {
             timeout.cancel();
         }

@@ -17,14 +17,18 @@ export class TestSuiteResults {
 
     public report() {
         for (let subjectResult of this._subjectResults) {
+            console.log();
+            console.log(colors.yellow(subjectResult.description));
+
             for (let testResult of subjectResult.tests) {
                 if (testResult.passed) {
-                    console.log(colors.green(`[ ✓ ] ${subjectResult.description} ${testResult.description}`));
+                    console.log(colors.green(`  ✓  ${subjectResult.description} ${testResult.description}`));
                 } else {
-                    console.log(colors.red(`[ ✗ ] ${subjectResult.description} ${testResult.description}`));
-                    console.log(` - ${testResult.message}`);
+                    console.log(colors.red(`  ✗  ${subjectResult.description} ${testResult.description}`));
+                    console.log(`${testResult.message}`);
                 }
             }
+
         }
     }
 }
