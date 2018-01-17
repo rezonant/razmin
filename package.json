@@ -1,6 +1,6 @@
 {
-  "name": "@rezonant/testcore",
-  "version": "1.0.0",
+  "name": "razmin",
+  "version": "0.0.1",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
