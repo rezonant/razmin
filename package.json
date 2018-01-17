@@ -4,22 +4,22 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "test": "tsc && node dist/test/test"
+    "build": "node ./node_modules/typescript/bin/tsc",
+    "test": "npm run build && node ./dist/test/test",
+    "prepublish": "npm run test"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@types/chai": "^4.1.0",
+    "@types/node": "^9.3.0",
     "chai": "^4.1.2",
     "typescript": "^2.6.2"
   },
   "dependencies": {
-    "@types/node": "^9.3.0",
     "colors": "^1.1.2",
     "rxjs": "^5.5.6",
     "source-map-support": "^0.5.0",
-    "timeout-as-promise": "^1.0.0",
     "zone.js": "^0.8.20"
   }
 }

@@ -76,9 +76,7 @@ suite(() => {
 
 ### Contributing
 
-Fork us on [Github](http://github.com/rezonant/razmin). Please use 
-the Github workflow (ie use feature-specific branches and send 
-pull requests).
+Fork on [Github](http://github.com/rezonant/razmin), file issues, and send pull requests!
 
 ### Testing
 
