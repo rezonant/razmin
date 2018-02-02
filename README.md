@@ -82,7 +82,7 @@ Fork on [Github](http://github.com/rezonant/razmin), file issues, and send pull 
 
 ### Testing
 
-To test this package using Karma run:
+To test this package:
 
 ```npm test```
 
