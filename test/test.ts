@@ -46,6 +46,53 @@ export async function test() {
             }
         ],
         [
+            'should not accept a suite that throws async exceptions',
+            async () => {
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will succeed', () => { });
+                        it('will fail', async () => {
+                            await delay(1);
+                            throw new Error('This is an error'); 
+                        })
+                        it('will also succeed', () => { });
+                    });
+                }, {
+                    reporters: []
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Should not accept a suite that throws async exceptions`);
+            }
+        ],
+        [
+            'should not accept a suite that throws a zoned exception',
+            async () => {
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will succeed', () => { });
+                        it('will fail', async () => {
+                            setTimeout(() => {
+                                throw new Error('This is an error'); 
+                            }, 50);
+                        })
+                        it('will also succeed', () => { });
+                    });
+                }, {
+                    reporters: []
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Should not accept a suite that throws zoned exceptions`);
+            }
+        ],
+        [
             'nested suites should merge',
             async () => {
                 let results = await suite(describe => {
@@ -170,12 +217,22 @@ async function runTests() {
 
                 expect(result.passed).to.eq(false);
             });
-            it('should detect an async exception and return a failure result', async () => {
+            it('should detect a zoned exception and return a failure result', async () => {
                 let success = false;
                 let test = new Test('test', () => {
                     setTimeout(() => {
                         throw new Error('this!');
                     }, 10);
+                });
+
+                let result = await test.run(null, "This Test!");
+                expect(result.passed).to.eq(false);
+            });
+            it('should detect an async exception and return a failure result', async () => {
+                let success = false;
+                let test = new Test('test', async () => {
+                    await delay(1);
+                    throw new Error('this!');
                 });
 
                 let result = await test.run(null, "This Test!");
