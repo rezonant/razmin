@@ -31,16 +31,22 @@ export class Test {
     private executeInSandbox(executionSettings : TestExecutionSettings): Promise<void> {
         return new Promise((resolve, reject) => {
             let zone = new TestZone(`Test Zone: ${executionSettings.contextName}`);
+            let executionCompleted = false;
+
             zone.onError.subscribe(e => reject(e));
-            zone.onStable.subscribe(e => resolve());
+            zone.onStable.subscribe(e => {
+                if (executionCompleted)
+                    resolve();
+            });
 
             zone.invoke(async () => {
                 try {
-                    let testCompleted : any = this.function();
+                    let testCompleted : any = await this.function();
                     if (!testCompleted || !testCompleted.then)
                         testCompleted = Promise.resolve();
                     
                     await testCompleted;
+                    executionCompleted = true;
                 } catch (e) {
                     reject(e);
                 }
