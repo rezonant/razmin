@@ -32,9 +32,10 @@ export class Test {
         return new Promise((resolve, reject) => {
             let zone = new TestZone(`Test Zone: ${executionSettings.contextName}`);
             let executionCompleted = false;
-
+            let isStable = false;
             zone.onError.subscribe(e => reject(e));
             zone.onStable.subscribe(e => {
+                isStable = true;
                 if (executionCompleted)
                     resolve();
             });
@@ -46,7 +47,10 @@ export class Test {
                         testCompleted = Promise.resolve();
                     
                     await testCompleted;
+
                     executionCompleted = true;
+                    if (isStable) 
+                        resolve();
                 } catch (e) {
                     reject(e);
                 }
