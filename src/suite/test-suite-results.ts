@@ -24,8 +24,8 @@ export class TestSuiteResults {
                 if (testResult.passed) {
                     console.log(colors.green(`  ✓  ${subjectResult.description} ${testResult.description}`));
                 } else {
-                    console.log(colors.red(`  ✗  ${subjectResult.description} ${testResult.description}`));
-                    console.log(`${testResult.message}`);
+                    console.log(colors.red( `  ✗  ${subjectResult.description} ${testResult.description}`));
+                    console.log(            `     ${testResult.message}`);
                 }
             }
 
