@@ -119,11 +119,11 @@ export async function test() {
         ]
     ];
 
-    await Promise.all(tests.map(async x => {
+    for (let x of tests) {
         let [ name, test ] = [ <string>x[0], <Function>x[1] ];
         await test();
         console.log(colors.green(`  ✓  ${name}`));
-    }));
+    };
 
     console.log();
 }
