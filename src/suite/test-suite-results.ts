@@ -16,19 +16,30 @@ export class TestSuiteResults {
     }
 
     public report() {
+        let total = 0;
+        let passed = 0;
+        let failed = 0;
+        let skipped = 0;
+
         for (let subjectResult of this._subjectResults) {
             console.log();
             console.log(colors.yellow(subjectResult.description));
 
             for (let testResult of subjectResult.tests) {
+                total += 1;
                 if (testResult.passed) {
+                    passed += 1;
                     console.log(colors.green(`  ✓  ${subjectResult.description} ${testResult.description}`));
                 } else {
+                    failed += 1;
                     console.log(colors.red( `  ✗  ${subjectResult.description} ${testResult.description}`));
                     console.log(            `     ${testResult.message}`);
                 }
             }
-
         }
+
+        console.log();
+        console.log(`ran ${total} test(s): ${colors.green(`${passed} passed`)}, ${colors.red(`${failed} failed`)}`);
+        console.log();
     }
 }
