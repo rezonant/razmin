@@ -14,8 +14,6 @@ export interface DslSettings {
     testExecutionSettings? : TestExecutionSettingsDef;
 }
 
-let topLevelSuite : TestSuite = null;
-
 /**
  * Define and execute a test suite
  * @param builder 
@@ -31,6 +29,7 @@ export async function suite(builder : TestSuiteFactory, settings?: DslSettings):
 
     let testSuite : TestSuite;
     let top = false;
+    let topLevelSuite = Zone.current.get('razminTestSuite');
 
     if (topLevelSuite) {
         testSuite = topLevelSuite;
@@ -39,10 +38,30 @@ export async function suite(builder : TestSuiteFactory, settings?: DslSettings):
         top = true;
     }
 
-    await builder((description, testFactory) => {
-        let subject = new TestSubject(description);
-        testFactory((testDescription : string, func : TestFunction) => subject.addTest(testDescription, func));
-        testSuite.addSubject(subject);
+    let zone = Zone.current.fork({
+        name: 'suite-zone',
+        properties: {
+            razminTestSuite: testSuite
+        },
+    });
+    
+    await new Promise((resolve, reject) => {
+        zone.run(async () => {
+            try { 
+                await builder((description, testFactory) => {
+                    let subject = new TestSubject(description);
+                    testFactory((testDescription : string, func : TestFunction) => subject.addTest(testDescription, func));
+                    testSuite.addSubject(subject);
+                });
+                
+                resolve();
+            } catch (e) {
+                console.error(`Caught error while building test:`);
+                console.error(e);
+
+                reject(e);
+            }
+        });
     });
 
     if (!top)
@@ -52,13 +71,22 @@ export async function suite(builder : TestSuiteFactory, settings?: DslSettings):
 
     // Run the test suite
 
-    let results = await testSuite.run();
+    let results : TestSuiteResults;
+    
+    try {
+        results = await testSuite.run();
+    } catch (e) {
+        console.error(`Caught error while running test suite:`);
+        console.error(e);
+        throw e;
+    }
+
     if (settings.reporters !== undefined) {
         settings.reporters.forEach(reporter => reporter(results));
     } else {
         // Default text output
         results.report();
     }
-    
+
     return results;
 }
