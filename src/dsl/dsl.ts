@@ -39,7 +39,7 @@ export async function suite(builder : TestSuiteFactory, settings?: DslSettings):
         top = true;
     }
 
-    builder((description, testFactory) => {
+    await builder((description, testFactory) => {
         let subject = new TestSubject(description);
         testFactory((testDescription : string, func : TestFunction) => subject.addTest(testDescription, func));
         testSuite.addSubject(subject);
