@@ -412,8 +412,12 @@ export async function main() {
     try {
         await runSanityTests();
         let results = await runTests();
-        if (!results.passed)
+        if (!results.passed) {
+            console.error(`Error: Some tests failed!`);
             process.exit(1);
+        } else {
+            console.error(`All tests pass!`);
+        }
     } catch (e) {
         console.error(e);
         process.exit(1);
