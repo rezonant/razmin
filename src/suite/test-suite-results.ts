@@ -15,6 +15,15 @@ export class TestSuiteResults {
         return this._subjectResults.map(x => x.passed).indexOf(false) < 0;
     }
 
+    public exitAndReport() {
+        if (!this.passed) {
+            console.log('Some tests failed!');
+            process.exit(1);
+        } else {
+            console.log('All tests pass!');
+            process.exit(0);
+        }
+    }
     public report() {
         let total = 0;
         let passed = 0;

@@ -11,6 +11,7 @@ import { TestSuiteFactory } from "./test-suite-factory";
 
 export interface DslSettings {
     reporters? : Reporter[];
+    exitAndReport? : boolean;
     testExecutionSettings? : TestExecutionSettingsDef;
 }
 
@@ -19,9 +20,6 @@ export interface DslSettings {
  * @param builder 
  */
 export async function suite(builder : TestSuiteFactory, settings?: DslSettings): Promise<TestSuiteResults> {
-
-
-
     if (!settings)
         settings = {};
 
@@ -87,6 +85,9 @@ export async function suite(builder : TestSuiteFactory, settings?: DslSettings):
         // Default text output
         results.report();
     }
+
+    if (settings.exitAndReport !== false)
+        results.exitAndReport();
 
     return results;
 }
