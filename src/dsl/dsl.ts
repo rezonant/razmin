@@ -165,7 +165,7 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
     results.report(settings.reporters);
     if (settings.exitAndReport !== false)
         results.exitAndReport();
-        
+
     return results;
 }
 
@@ -237,12 +237,12 @@ function argsMatch(args : any[], patterns : string[]) {
  * Define and execute a test suite
  * @param builder 
  */
-export function suite() : FluentSuite;
+export function suite(settings?: DslSettings) : FluentSuite;
 export async function suite(builder : TestSuiteFactory, settings?: DslSettings): Promise<TestSuiteResults> 
 export function suite(...args): any
 {
-    if (args.length === 0)
-        return new FluentSuite();
+    if (argsMatch(args, ['object?']))
+        return new FluentSuite(args[0]);
     
     if (argsMatch(args, ['function', 'object?']))
         return suiteDeclaration(args[0], args[1]);
