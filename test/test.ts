@@ -15,7 +15,8 @@ export async function test() {
                         it('will succeed', () => { });
                     });
                 }, {
-                    reporters: []
+                    reporters: [],
+                    exitAndReport: false
                 });
 
                 if (!results)
@@ -35,7 +36,8 @@ export async function test() {
                         it('will also succeed', () => { });
                     });
                 }, {
-                    reporters: []
+                    reporters: [],
+                    exitAndReport: false
                 });
 
                 if (!results)
@@ -58,7 +60,8 @@ export async function test() {
                         it('will also succeed', () => { });
                     });
                 }, {
-                    reporters: []
+                    reporters: [],
+                    exitAndReport: false
                 });
 
                 if (!results)
@@ -82,7 +85,8 @@ export async function test() {
                         it('will also succeed', () => { });
                     });
                 }, {
-                    reporters: []
+                    reporters: [],
+                    exitAndReport: false
                 });
 
                 if (!results)
@@ -107,7 +111,8 @@ export async function test() {
                         })
                     });
                 }, {
-                    reporters: []
+                    reporters: [],
+                    exitAndReport: false
                 });
 
                 if (!results)
@@ -121,7 +126,15 @@ export async function test() {
 
     for (let x of tests) {
         let [ name, test ] = [ <string>x[0], <Function>x[1] ];
-        await test();
+
+        try {
+            await test();
+        } catch (e) {
+            console.log(colors.red(`  ✗  ${name}`));
+            console.error(e);
+            throw e;
+        }
+
         console.log(colors.green(`  ✓  ${name}`));
     };
 

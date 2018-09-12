@@ -24,7 +24,14 @@ export class TestSuiteResults {
             process.exit(0);
         }
     }
-    public report() {
+
+    public report(reporters? : Function[]) {
+
+        if (reporters) {
+            reporters.forEach(reporter => reporter(this));
+            return;
+        }
+
         let total = 0;
         let passed = 0;
         let failed = 0;

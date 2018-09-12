@@ -44,16 +44,9 @@ export class FluentSuite {
 
     async run() {
         let results = await this.runForResults();
-        
-
-        if (this.settings.reporters !== undefined) {
-            this.settings.reporters.forEach(reporter => reporter(results));
-        } else {
-            // Default text output
-            results.report();
-        }
-
-        results.exitAndReport();
+        results.report(this.settings.reporters);
+        if (this.settings.exitAndReport !== false)
+            results.exitAndReport();
     }
 
     async runForResults(): Promise<TestSuiteResults> {
@@ -118,20 +111,20 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
     let testSuite : TestSuite;
     let top = false;
     let topLevelSuite = Zone.current.get('razminTestSuite');
+    let zone : Zone = Zone.current;
 
     if (topLevelSuite) {
         testSuite = topLevelSuite;
     } else {
         testSuite = topLevelSuite = new TestSuite(new TestExecutionSettings(settings.testExecutionSettings));
         top = true;
+        zone = Zone.current.fork({
+            name: 'suite-zone',
+            properties: {
+                razminTestSuite: testSuite
+            },
+        });
     }
-
-    let zone = Zone.current.fork({
-        name: 'suite-zone',
-        properties: {
-            razminTestSuite: testSuite
-        },
-    });
     
     await new Promise((resolve, reject) => {
         zone.run(async () => {
@@ -169,16 +162,10 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
         throw e;
     }
 
-    if (settings.reporters !== undefined) {
-        settings.reporters.forEach(reporter => reporter(results));
-    } else {
-        // Default text output
-        results.report();
-    }
-
+    results.report(settings.reporters);
     if (settings.exitAndReport !== false)
         results.exitAndReport();
-
+        
     return results;
 }
 
