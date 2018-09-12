@@ -1,6 +1,6 @@
 {
   "name": "razmin",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "A testing framework for modern Javascript.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
