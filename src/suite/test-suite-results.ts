@@ -48,7 +48,13 @@ export class TestSuiteResults {
         }
 
         console.log();
-        console.log(`ran ${total} test(s): ${colors.green(`${passed} passed`)}, ${colors.red(`${failed} failed`)}`);
+
+        if (failed > 0 && passed > 0)
+            console.log(`ran ${total} test(s): ${colors.green(`${passed} passed`)}, ${colors.red(`${failed} failed`)}`);
+        else if (failed > 0)
+            console.log(`${colors.red(`${failed} / ${total} test(s) failed`)}`);
+        else // passed > 0
+            console.log(`${colors.green(`${passed} test(s) passed`)}`);
         console.log();
     }
 }
