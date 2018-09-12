@@ -27,6 +27,10 @@ export class TestSuite {
         return this._testExecutionSettings;
     }
 
+    public set testExecutionSettings(value : TestExecutionSettings) {
+        this._testExecutionSettings = value;
+    }
+
     async run(): Promise<TestSuiteResults> {
         return new TestSuiteResults(await Promise.all(this._subjects.map(x => x.run(this.testExecutionSettings))));
     }

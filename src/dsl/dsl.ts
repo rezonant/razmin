@@ -20,12 +20,35 @@ import * as path from 'path';
 
 export class FluentSuite {
     constructor(settings : DslSettings = {}) {
-        this.settings = settings;
+        this._settings = settings;
         this.suite = new TestSuite(new TestExecutionSettings(settings.testExecutionSettings));
     }
 
-    readonly settings : DslSettings;
+    private _settings : DslSettings;
     readonly suite : TestSuite;
+
+    get settings() {
+        return this._settings;
+    }
+
+    withTimeout(millis : number): this {
+        if (!this._settings.testExecutionSettings)
+            this._settings.testExecutionSettings = {};
+        this._settings.testExecutionSettings.timeout = millis;
+
+        return this;
+    }
+
+    withOptions(settings : DslSettings): this {
+        if (!settings)
+            throw new Error(`You must pass an object to withOptions()`);
+        
+        this._settings = settings;
+        if (settings.testExecutionSettings)
+            this.suite.testExecutionSettings = new TestExecutionSettings(settings.testExecutionSettings);
+
+        return this;
+    }
 
     include(paths : string[]): this {
         let origDir = process.cwd();
@@ -237,7 +260,7 @@ function argsMatch(args : any[], patterns : string[]) {
  * Define and execute a test suite
  * @param builder 
  */
-export function suite(settings?: DslSettings) : FluentSuite;
+export function suite() : FluentSuite;
 export async function suite(builder : TestSuiteFactory, settings?: DslSettings): Promise<TestSuiteResults> 
 export function suite(...args): any
 {
