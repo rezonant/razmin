@@ -2,7 +2,7 @@ import "zone.js";
 import * as colors from 'colors/safe';
 
 import { TestResult } from "./test-result";
-import { TestFunction } from "./test-function";
+import { TestFunction, DoneCallback } from "./test-function";
 import { delay, TestZone } from '../util';
 import { TestExecutionSettings } from "../core";
 
@@ -42,11 +42,24 @@ export class Test {
 
             zone.invoke(async () => {
                 try {
-                    let testCompleted : any = await this.function();
-                    if (!testCompleted || !testCompleted.then)
-                        testCompleted = Promise.resolve();
-                    
-                    await testCompleted;
+                    let takesDone = this.function.length > 0;
+
+                    if (takesDone) {
+                        await new Promise((res, rej) => {
+                            let done : DoneCallback = Object.assign(
+                                () => res(), 
+                                { fail: () => rej() }
+                            );
+
+                            try {
+                                this.function(done);
+                            } catch (e) {
+                                rej(e);
+                            }
+                        });
+                    } else {
+                        await this.function();
+                    }
 
                     executionCompleted = true;
                     if (isStable) 

@@ -3,18 +3,36 @@ import { TestFunction } from "../test";
 import { TestSubjectResult } from "../subject";
 import { TestResult } from "../test";
 import { TestExecutionSettings } from "../core";
+import { LifecycleContainer } from "../util";
 
 /**
  * Represents a set of unit tests built around a single object under test ("subject")
  */
-export class TestSubject {
+export class TestSubject implements LifecycleContainer {
     public constructor(
-        private _description : string
+        private _description : string,
+        private _parent? : LifecycleContainer
     ) {
 
     }
 
     private _tests : Test[] = [];
+    private _lifecycleEvents : any = {};
+
+    public addEventListener(eventName : string, handler : Function) {
+        if (!this._lifecycleEvents[eventName])
+            this._lifecycleEvents[eventName] = [];
+
+        this._lifecycleEvents[eventName].push(handler);
+    }
+
+    public async fireEvent(eventName : string) {
+        if (this._parent)
+            this._parent.fireEvent(eventName);
+        let handlers : Function[] = this._lifecycleEvents[eventName] || [];
+        for (let handler of handlers)
+            await handler();
+    }
 
     /**
      * Get the human-readable description of this subject.
@@ -55,8 +73,18 @@ export class TestSubject {
      * @param testExecutionSettings 
      */
     public async run(testExecutionSettings? : TestExecutionSettings): Promise<TestSubjectResult> {
-        return new TestSubjectResult(this._description, 
-            await Promise.all(this._tests.map (test => this.runTest(test, testExecutionSettings)))
-        );
+        let results : TestResult[] = [];
+
+        for (let test of this._tests) {
+            let result : TestResult;
+
+            await this.fireEvent('before');
+            result = await this.runTest(test, testExecutionSettings);
+            await this.fireEvent('after');
+
+            results.push(result);
+        }
+
+        return new TestSubjectResult(this._description, results);
     }
 }

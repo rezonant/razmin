@@ -4,8 +4,9 @@ import { TestSubject } from "../subject";
 import { TestSubjectResult } from "../subject";
 import { TestSuiteResults } from "../suite";
 import { TestExecutionSettings } from "../core";
+import { LifecycleContainer } from "../util";
 
-export class TestSuite {    
+export class TestSuite implements LifecycleContainer {
     constructor(
         private _testExecutionSettings? : TestExecutionSettings
     ) {
@@ -16,6 +17,21 @@ export class TestSuite {
             });
         }
     }
+
+    addEventListener(eventName : string, handler : Function) {
+        if (!this._lifecycleEvents[eventName])
+            this._lifecycleEvents[eventName] = [];
+
+        this._lifecycleEvents[eventName].push(handler);
+    }
+
+    async fireEvent(eventName : string) {
+        let handlers : Function[] = this._lifecycleEvents[eventName] || [];
+        for (let handler of handlers)
+            await handler();
+    }
+
+    private _lifecycleEvents = {};
 
     private _subjects : TestSubject[] = [];
 
@@ -32,7 +48,13 @@ export class TestSuite {
     }
 
     async run(): Promise<TestSuiteResults> {
-        return new TestSuiteResults(await Promise.all(this._subjects.map(x => x.run(this.testExecutionSettings))));
+        let results : TestSubjectResult[] = [];
+        for (let subject of this._subjects) {
+            let result = await subject.run(this.testExecutionSettings);
+            results.push(result);
+        }
+
+        return new TestSuiteResults(results);
     }
 
     addSubject(subject : TestSubject) {

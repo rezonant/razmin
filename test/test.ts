@@ -1,4 +1,4 @@
-import { suite, Test, TestExecutionSettings, TestSuite, TestSubject } from '../src';
+import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach, afterEach } from '../src';
 import { delay } from '../src/util';
 import { expect } from 'chai';
 import * as colors from 'colors/safe';
@@ -120,6 +120,200 @@ export async function test() {
 
                 if (results.passed)
                     throw new Error(`Nested suites should become part of the top-level suite`);
+            }
+        ],
+        [
+            'tests should be run in the proper order',
+            async () => {
+                let message = '';
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will succeed', async () => { 
+                            message += 'h';
+                            await delay(30);
+                            message += 'e';
+                        });
+                        it('will also succeed', async () => { 
+                            message += 'll';
+                        });
+                        it('will also succeed', () => { 
+                            message += 'o';
+                        });
+                        it('will also succeed', () => { 
+                            message += ' ';
+                        });
+                    });
+                    describe('another thing under test', it => {
+                        it('will succeed', async () => { 
+                            message += 'w';
+                            await delay(30);
+                            message += 'o';
+                        });
+                        it('will also succeed', () => { 
+                            message += 'r';
+                        });
+                    });
+
+                    suite(describe => {
+                        describe('thing under test', it => {
+                            it('will succeed', async () => { 
+                                message += 'l';
+                            });
+                            it('will also succeed', () => { 
+                                message += 'd';
+                            });
+                        });
+                        describe('another thing under test', it => {
+                            it('will succeed', async () => { 
+                                message += ' ';
+                                await delay(30);
+                                message += 'a';
+                            });
+                            it('will also succeed', async () => { 
+                                message += 'n';
+                                await delay(30);
+                                message += 'd such';
+                            });
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                expect(message).to.eq('hello world and such');
+            }
+        ],
+        [
+            'beforeEach should run before each test',
+            async () => {
+                let message = '';
+                let results = await suite(describe => {
+                    describe('another thing under test', it => {
+                        beforeEach(() => {
+                            message += '(';
+                        });
+
+                        it('will succeed', async () => { 
+                            message += 'a';
+                            await delay(30);
+                            message += 'b';
+                        });
+                        it('will also succeed', async () => { 
+                            message += 'c';
+                            await delay(30);
+                            message += 'd';
+                        });
+                        it('will also succeed', async () => { 
+                            message += 'e';
+                            await delay(30);
+                            message += 'f';
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                expect(message).to.eq('(ab(cd(ef');
+            }
+        ],
+        [
+            'afterEach should run before each test',
+            async () => {
+                let message = '';
+                let results = await suite(describe => {
+                    describe('another thing under test', it => {
+                        afterEach(() => {
+                            message += ')';
+                        });
+
+                        it('will succeed', async () => { 
+                            message += 'a';
+                            await delay(30);
+                            message += 'b';
+                        });
+                        it('will also succeed', async () => { 
+                            message += 'c';
+                            await delay(30);
+                            message += 'd';
+                        });
+                        it('will also succeed', async () => { 
+                            message += 'e';
+                            await delay(30);
+                            message += 'f';
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                expect(message).to.eq('ab)cd)ef)');
+            }
+        ],
+        [
+            'before/after should surround each test',
+            async () => {
+                let message = '';
+                let results = await suite(describe => {
+                    describe('another thing under test', it => {
+                        afterEach(() => {
+                            message += ')';
+                        });
+                        beforeEach(() => {
+                            message += '(';
+                        });
+
+                        it('will succeed', async () => { 
+                            message += 'a';
+                            await delay(30);
+                            message += 'b';
+                        });
+                        it('will also succeed', async () => { 
+                            message += 'c';
+                            await delay(30);
+                            message += 'd';
+                        });
+                        it('will also succeed', async () => { 
+                            message += 'e';
+                            await delay(30);
+                            message += 'f';
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                expect(message).to.eq('(ab)(cd)(ef)');
+            }
+        ],
+        [
+            'nested describe should extend the description',
+            async () => {
+                let message = '';
+                let results = await suite(describe => {
+                    describe('thing1', () => {
+                        describe('should do a thing', it => {
+                            it('will succeed', async () => { 
+                            });
+                            it('will fail', async () => { 
+                                throw new Error();
+                            });
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.passed).to.eq(false);
+                expect(result.tests[0].passed).to.eq(true);
+                expect(result.tests[1].passed).to.eq(false);
             }
         ]
     ];

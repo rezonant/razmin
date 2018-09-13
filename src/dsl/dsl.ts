@@ -17,6 +17,8 @@ import { TestSuiteFactory } from "./test-suite-factory";
 import * as requireGlob from 'require-glob';
 import * as callsites from 'callsites';
 import * as path from 'path';
+import { TestSubjectBuilder } from "./test-subject-builder";
+import { TestFactory } from "./test-factory";
 
 export class FluentSuite {
     constructor(settings : DslSettings = {}) {
@@ -99,9 +101,10 @@ export async function buildSuite(paths : string[], options? : DslSettings, testS
         testSuite = new TestSuite(new TestExecutionSettings(options.testExecutionSettings));
 
     let zone = Zone.current.fork({
-        name: 'suite-zone',
+        name: 'razminSuiteZone',
         properties: {
-            razminTestSuite: testSuite
+            razminTestSuite: testSuite,
+            razminLifecycleContainer: testSuite
         },
     });
     
@@ -124,6 +127,51 @@ export async function buildSuite(paths : string[], options? : DslSettings, testS
     return testSuite;
 }
 
+export async function describe(description : string, testFactory : TestFactory) {
+    let testSuite : TestSuite = Zone.current.get('razminTestSuite');
+    if (!testSuite) {
+        suiteDeclaration(() => describe(description, testFactory));
+        return;
+    }
+
+    let parentSubject : TestSubject = Zone.current.get('razminSubject');
+    if (parentSubject)
+        description = `${parentSubject.description} ${description}`;
+
+    let subject = new TestSubject(description, testSuite);
+    testSuite.addSubject(subject);
+
+    let zone = Zone.current.fork({
+        name: 'razminSubjectZone',
+        properties: {
+            razminSubject: subject,
+            razminLifecycleContainer: subject
+        }
+    });
+
+    await new Promise((resolve, reject) => {
+        zone.run(async () => {
+            try { 
+                testFactory(it);
+                resolve();
+            } catch (e) {
+                console.error(`Caught error while building test:`);
+                console.error(e);
+
+                reject(e);
+            }
+        });
+    });
+}
+
+export async function it(testDescription : string, func : TestFunction) {
+    let subject : TestSubject = Zone.current.get('razminSubject');
+    if (!subject)
+        throw new Error(`You can only call it() from inside a describe() block.`);
+    
+    subject.addTest(testDescription, func);
+}
+
 async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSettings): Promise<TestSuiteResults>
 {
     if (!settings)
@@ -142,7 +190,7 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
         testSuite = topLevelSuite = new TestSuite(new TestExecutionSettings(settings.testExecutionSettings));
         top = true;
         zone = Zone.current.fork({
-            name: 'suite-zone',
+            name: 'razminSuiteZone',
             properties: {
                 razminTestSuite: testSuite
             },
@@ -152,17 +200,11 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
     await new Promise((resolve, reject) => {
         zone.run(async () => {
             try { 
-                await builder((description, testFactory) => {
-                    let subject = new TestSubject(description);
-                    testFactory((testDescription : string, func : TestFunction) => subject.addTest(testDescription, func));
-                    testSuite.addSubject(subject);
-                });
-                
+                await builder(describe);
                 resolve();
             } catch (e) {
                 console.error(`Caught error while building test:`);
                 console.error(e);
-
                 reject(e);
             }
         });
@@ -271,4 +313,20 @@ export function suite(...args): any
         return suiteDeclaration(args[0], args[1]);
     
     throw new Error(`Unknown parameters: ${args.join(', ')}`);
+}
+
+export function beforeEach(handler : Function) {
+    let lifecycleContainer = Zone.current.get('razminLifecycleContainer');
+    if (!lifecycleContainer)
+        throw new Error(`Can only be used inside suite() or describe()`);
+
+    lifecycleContainer.addEventListener('before', handler);
+}
+
+export function afterEach(handler : Function) {
+    let lifecycleContainer = Zone.current.get('razminLifecycleContainer');
+    if (!lifecycleContainer)
+        throw new Error(`Can only be used inside suite() or describe()`);
+
+    lifecycleContainer.addEventListener('after', handler);
 }
