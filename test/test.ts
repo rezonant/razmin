@@ -97,6 +97,32 @@ export async function test() {
             }
         ],
         [
+            'should not accept a suite that throws a zoned async exception',
+            async () => {
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will succeed', () => { });
+                        it('will fail', async () => {
+                            setTimeout(async () => {
+                                delay(30);
+                                throw new Error('This is an error'); 
+                            }, 30);
+                        })
+                        it('will also succeed', () => { });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Should not accept a suite that throws zoned exceptions`);
+            }
+        ],
+        [
             'nested suites should merge',
             async () => {
                 let results = await suite(describe => {
