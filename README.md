@@ -95,6 +95,22 @@ suite(() => {
 });
 ```
 
+### Configuration
+
+Any `suite()` call may define the settings of the overall test suite. In the case of nested suites, options in the nested suite are ignored. Pass the options as the second argument of the suite when declaring one, or when using the fluent API, `suite().withOptions({ ... })`.
+
+### Timeouts
+
+By default tests may run for up to 10 seconds before they fail as timed out. Use `executionSettings.timeout` to configure this.
+
+### Reporters
+
+You can define your own reporters. When reporters are specified, Razmin will not print results to the terminal (even if an empty set of reporters is provided). Use the `reporters` option to pass the set of reporters you'd like to use from your root test suite.
+
+### Exit and Report
+
+By default when you execute a suite, either by executing your suite or using `suite().run()`, Razmin will exit the process with either a zero status code (success) or a one status code (failure). You may wish to suppress this, to do so set the `exitAndReport` option to `false`.
+
 ### Contributing
 
 Fork on [Github](http://github.com/rezonant/razmin), file issues, and send pull requests!
