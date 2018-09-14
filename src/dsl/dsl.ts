@@ -19,6 +19,7 @@ import * as callsites from 'callsites';
 import * as path from 'path';
 import { TestSubjectBuilder } from "./test-subject-builder";
 import { TestFactory } from "./test-factory";
+import { LifecycleContainer } from "../util";
 
 export class FluentSuite {
     constructor(settings : DslSettings = {}) {
@@ -138,7 +139,11 @@ export async function describe(description : string, testFactory : TestFactory) 
     if (parentSubject)
         description = `${parentSubject.description} ${description}`;
 
-    let subject = new TestSubject(description, testSuite);
+    let parent : LifecycleContainer = Zone.current.get('razminLifecycleContainer');;
+    if (!parent)
+        parent = testSuite;
+
+    let subject = new TestSubject(description, parent);
     testSuite.addSubject(subject);
 
     let zone = Zone.current.fork({
