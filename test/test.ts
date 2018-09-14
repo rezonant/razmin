@@ -2,6 +2,8 @@ import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach,
 import { delay } from '../src/util';
 import { expect } from 'chai';
 import * as colors from 'colors/safe';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 export async function test() {
 
@@ -636,6 +638,22 @@ async function runTests() {
 
                 expect(result.message || '', 'the message should not be empty')
                     .to.not.be.empty;
+            });
+            if (0) it('should detect errors in observables', async () => {
+                let success = false;
+                let date = new Date();
+                let test = new Test('test', () => {
+                    of(1,2,3).pipe(map(v => {
+                        throw new Error('This is an error!')
+                    })).pipe(catchError(e => {
+                        throw e
+                    }));
+                });
+
+                let result = await test.run(new TestExecutionSettings({ timeout: 1000 }), "This Test!");
+
+                expect(result.passed, 'the example test should fail')
+                    .to.be.false;
             });
         });
     });
