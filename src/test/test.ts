@@ -33,11 +33,24 @@ export class Test {
             let zone = new TestZone(`Test Zone: ${executionSettings.contextName}`);
             let executionCompleted = false;
             let isStable = false;
-            zone.onError.subscribe(e => reject(e));
+            let isResolved = false;
+
+            zone.onError.subscribe(e => {
+                if (isResolved) {
+                    console.error(`Caught error after test completed, this is a bug.`);
+                    console.error(`Error was:`);
+                    console.error(e);
+                    throw new Error(`Caught error after test completed, this is a bug.`);
+                }
+
+                reject(e);
+            });
             zone.onStable.subscribe(e => {
                 isStable = true;
-                if (executionCompleted)
+                if (executionCompleted) {
+                    isResolved = true;
                     resolve();
+                }
             });
 
             zone.invoke(async () => {
@@ -45,14 +58,14 @@ export class Test {
                     let takesDone = this.function.length > 0;
 
                     if (takesDone) {
-                        await new Promise((res, rej) => {
+                        await new Promise(async (res, rej) => {
                             let done : DoneCallback = Object.assign(
                                 () => res(), 
                                 { fail: () => rej() }
                             );
 
                             try {
-                                this.function(done);
+                                await this.function(done);
                             } catch (e) {
                                 rej(e);
                             }
@@ -62,9 +75,17 @@ export class Test {
                     }
 
                     executionCompleted = true;
-                    if (isStable) 
+                    if (isStable) {
+                        isResolved = true;
                         resolve();
+                    }
                 } catch (e) {
+                    if (isResolved) {
+                        console.error(`Caught error after test completed, this is a bug.`);
+                        console.error(`Error was:`);
+                        console.error(e);
+                        throw new Error(`Caught error after test completed, this is a bug.`);
+                    }
                     reject(e);
                 }
             });
