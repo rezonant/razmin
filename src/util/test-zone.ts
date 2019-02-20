@@ -56,6 +56,10 @@ export class TestZone {
     private _onMicrotaskEmpty : Subject<void> = new Subject<void>();
     private _onStable : Subject<void> = new Subject<void>();
 
+    public get zone(): Zone {
+        return this._zone;
+    }
+
     public get onMicrotaskEmpty(): Observable<void> {
         return this._onMicrotaskEmpty;
     }
