@@ -2,7 +2,7 @@ import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach,
 import { delay } from '../src/util';
 import { expect } from 'chai';
 import * as colors from 'colors/safe';
-import { Observable, of } from 'rxjs';
+import { Observable, of, interval, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 export async function test() {
@@ -74,7 +74,7 @@ export async function test() {
             }
         ],
         [
-            'should not accept a suite that throws a zoned exception',
+            'should not accept a suite that throws an uncaught exception',
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -99,7 +99,7 @@ export async function test() {
             }
         ],
         [
-            'should not accept a suite that throws a zoned async exception',
+            'should not accept a suite that throws an uncaught async exception',
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -122,6 +122,40 @@ export async function test() {
 
                 if (results.passed)
                     throw new Error(`Should not accept a suite that throws zoned exceptions`);
+            }
+        ],
+        [
+            'should not accept a suite that throws an uncaught exception in an observable',
+            async () => {
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will fail', async () => {
+                            let subscription : Subscription;
+                            let counter = 0;
+                            subscription = interval(10).subscribe(() => {
+                                counter += 1
+                                if (counter == 3) {
+                                    throw new Error('(VALID-ERROR)');
+                                }
+                            });
+                        })
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Should not accept a suite that throws zoned exceptions`);
+
+                let testResult = results.subjectResults[0].tests[0];
+
+                if (!testResult.message.includes('(VALID-ERROR)')) {
+                    throw new Error(`Incorrect failure message: ${testResult.message}`);
+                }
             }
         ],
         [
