@@ -5,11 +5,18 @@ import * as colors from 'colors/safe';
 import { Observable, of, interval, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
+interface SanityTestOptions {
+    skip?: boolean;
+}
+
+type SanityTestDefinition = [ string, SanityTestOptions, Function ];
+
 export async function test() {
 
-    let tests = [
+    let tests : SanityTestDefinition[] = [
         [
             'should recognize no-op success',
+            {},
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -30,6 +37,7 @@ export async function test() {
         ],
         [
             'should not accept a suite that throws exceptions',
+            {},
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -51,6 +59,7 @@ export async function test() {
         ],
         [
             'should not accept a suite that throws async exceptions',
+            {},
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -75,6 +84,7 @@ export async function test() {
         ],
         [
             'should not accept a suite that throws an uncaught exception',
+            {},
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -100,6 +110,7 @@ export async function test() {
         ],
         [
             'should not accept a suite that throws an uncaught async exception',
+            {},
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -126,6 +137,7 @@ export async function test() {
         ],
         [
             'should not accept a suite that throws an uncaught exception in an observable',
+            {},
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -160,6 +172,7 @@ export async function test() {
         ],
         [
             'should accept a suite where a rejected promise is caught',
+            {},
             async () => {
                 let wasCaught = false;
 
@@ -188,7 +201,34 @@ export async function test() {
             }
         ],
         [
+            'should reject a suite with an uncaught rejected promise',
+            { skip: true },
+            async () => {
+                let wasCaught = false;
+
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will fail', async () => {
+                            Promise.reject(new Error('stuff')).then(() => {
+
+                            });
+                        })
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Test subject was expected to fail`);
+            }
+        ],
+        [
             'nested suites should merge',
+            {},
             async () => {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
@@ -215,6 +255,7 @@ export async function test() {
         ],
         [
             'tests should be run in the proper order',
+            {},
             async () => {
                 let message = '';
                 let results = await suite(describe => {
@@ -277,6 +318,7 @@ export async function test() {
         ],
         [
             'beforeEach should run before each test',
+            {},
             async () => {
                 let message = '';
                 let results = await suite(describe => {
@@ -311,6 +353,7 @@ export async function test() {
         ],
         [
             'afterEach should run before each test',
+            {},
             async () => {
                 let message = '';
                 let results = await suite(describe => {
@@ -345,6 +388,7 @@ export async function test() {
         ],
         [
             'before/after should surround each test',
+            {},
             async () => {
                 let message = '';
                 let results = await suite(describe => {
@@ -382,6 +426,7 @@ export async function test() {
         ],
         [
             'nested describe should extend the description',
+            {},
             async () => {
                 let message = '';
                 let results = await suite(describe => {
@@ -412,7 +457,14 @@ export async function test() {
     let passedCount = 0;
     let failedCount = 0;
     for (let x of tests) {
-        let [ name, test ] = [ <string>x[0], <Function>x[1] ];
+        let [ name, options, test ] = x;
+
+        if (options) {
+            if (options.skip) {
+                console.log(colors.yellow(`  S  ${name}`));
+                continue;
+            }
+        }
 
         try {
             await test();
