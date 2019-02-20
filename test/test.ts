@@ -159,6 +159,35 @@ export async function test() {
             }
         ],
         [
+            'should accept a suite where a rejected promise is caught',
+            async () => {
+                let wasCaught = false;
+
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will fail', async () => {
+                            
+                            Promise.resolve().then(() => { throw new Error() }).catch(e => {
+                                wasCaught = true;
+                            });
+                        })
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (!results.passed)
+                    throw new Error(`Should have passed`);
+                
+                if (!wasCaught)
+                    throw new Error(`Promise rejection handler did not run`);
+            }
+        ],
+        [
             'nested suites should merge',
             async () => {
                 let results = await suite(describe => {
@@ -380,25 +409,36 @@ export async function test() {
         ]
     ];
 
+    let passedCount = 0;
+    let failedCount = 0;
     for (let x of tests) {
         let [ name, test ] = [ <string>x[0], <Function>x[1] ];
 
         try {
             await test();
         } catch (e) {
+            failedCount += 1;
             console.log(colors.red(`  ✗  ${name}`));
             console.error(e);
             throw e;
         }
 
+        passedCount += 1;
         console.log(colors.green(`  ✓  ${name}`));
     };
 
     console.log();
+    if (failedCount == 0)
+        console.log(`${passedCount} test(s) passed`);
+    else if (passedCount == 0)
+        console.log(`all ${failedCount} test(s) failed`);
+    else
+        console.log(`${passedCount} test(s) passed, ${failedCount} failed`);
+    console.log();
 }
 
 export async function runSanityTests() {
-    console.log('Running sanity tests...');
+    console.log('Sanity Tests');
     try {
         await test();
     } catch (e) {
@@ -409,7 +449,7 @@ export async function runSanityTests() {
 }
 
 async function runTests() {
-    console.log('Running test suite...');
+    console.log('= Primary Tests =');
     return await suite(describe => {
         describe('TestSuite', it => {
             it('should run its suites', async () => {
