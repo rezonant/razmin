@@ -123,7 +123,7 @@ export class Test {
                     reject(e);
                 }
                 
-                if (ENABLE_NODE_REJECTION_DETECTION typeof process !== 'undefined') {
+                if (ENABLE_NODE_REJECTION_DETECTION && typeof process !== 'undefined') {
                     process.removeListener('unhandledRejection', unhandledRejectionHandler);
                     process.removeListener('uncaughtException', uncaughtExceptionHandler);
                 }
