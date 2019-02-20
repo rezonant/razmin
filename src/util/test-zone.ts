@@ -12,11 +12,11 @@ export class TestZone {
             },
 
             onInvoke(delegate, current, target, callback, applyThis, applyArgs, source) {
-                self.innerInvoke(() => delegate.invoke(target, callback, applyThis, applyArgs, source));
+                return self.innerInvoke(() => delegate.invoke(target, callback, applyThis, applyArgs, source));
             },
             
             onInvokeTask(delegate: ZoneDelegate, current: Zone, target: Zone, task: Task, applyThis: any, applyArgs: any) {
-                self.innerInvoke(() => delegate.invokeTask(target, task, applyThis, applyArgs));
+                return self.innerInvoke(() => delegate.invokeTask(target, task, applyThis, applyArgs));
             },
 
             onHasTask(delegate, current, target, hasTaskState) {
@@ -99,7 +99,7 @@ export class TestZone {
     private innerInvoke(callback : () => void) {
         this.onEnter();
         try {
-            callback();
+            return callback();
         } finally {
             this.onLeave();
         }

@@ -489,6 +489,20 @@ async function runTests() {
 
                 // Result is not needed.
             });
+            it('should not inhibit return value from tasks', async () => {
+                
+                let value = 5;
+                let echoedValue = null;
+                let promise = Promise.resolve(3).then(n => Promise.resolve(n + 2));
+                
+                promise.then(v => echoedValue = v);
+
+                setTimeout(() => {
+                    if (value !== echoedValue)
+                        throw new Error('Zone inhibited return value of task');
+                }, 100);
+
+            });
             it('should not fail a test for an unrelated peer exception', async () => {
                 let success = false;
                 let test1 = new Test('test', () => {
