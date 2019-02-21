@@ -61,15 +61,20 @@ npm install razmin --save-dev
 
 ### Usage
 
-The simplest way to use Razmin is to use the Jasmine-style API. Razmin is almost entirely drop-in compatible with Jasmine. 
+The simplest way to use Razmin is to use the Jasmine-style API. 
+
+Razmin tests are run imperatively. There's no top level CLI to run, instead
+you execute a test script which either contains your tests or loads your tests 
+from other scripts. `describe()` blocks are self executing, and the result of each test is 
+automatically coalesced into the final test results.
 
 One difference between Razmin and Jasmine is the `suite()` block. Suites are optional, but 
-are useful for combining multiple test subjects (`describe()`) into one cohesive test suite for
+are useful for combining multiple test subjects (`describe()` blocks) into a single test suite for
 reporting purposes. Note that you can still nest `describe()` blocks as you would in Jasmine,
 but you cannot specify options to Razmin without declaring a `suite()` block.
 
 Each `suite()` block can have nested `suite()` blocks and they all combine to be represented by 
-a single test suite at the top level. This relationship exists across `import`/`require` (provided this is the first time that the module was included), so you could directly require your individual test files from a top-level suite block if you wish. 
+a single test suite at the top level. This relationship holds across `require()` calls (provided this is the first time that the module was included), so you could directly require your individual test files from a top-level suite block if you wish. 
 
 ```ts
 suite(() => {
