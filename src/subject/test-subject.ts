@@ -5,6 +5,8 @@ import { TestResult } from "../test";
 import { TestExecutionSettings } from "../core";
 import { LifecycleContainer } from "../util";
 
+import MersenneTwister = require('mersenne-twister');
+
 /**
  * Represents a set of unit tests built around a single object under test ("subject")
  */
@@ -82,6 +84,28 @@ export class TestSubject implements LifecycleContainer {
                 only.push(test);
         }
 
+        // Order
+
+        let order = 'default';
+        
+        if (testExecutionSettings && testExecutionSettings.order && <string>testExecutionSettings.order != '')
+            order = testExecutionSettings.order;
+
+        if (order == 'random') {
+            let mt = new MersenneTwister();
+            let seed = testExecutionSettings ? testExecutionSettings.orderSeed : undefined;
+            if (typeof seed === 'undefined')
+                seed = Math.round(Math.random() * 100000);
+
+            console.log(`Ordering seed: ${seed}`);
+
+            mt.init_seed(seed);
+            tests = tests.sort((a, b) => mt.random() - 0.5);
+        } else if (testExecutionSettings.order == 'default') {
+            // order as observed
+        } else {
+            throw new Error(`Test ordering '${testExecutionSettings.order}' is not supported`);
+        }
 
         for (let test of tests) {
             let result : TestResult;

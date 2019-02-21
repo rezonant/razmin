@@ -22,8 +22,10 @@
     "typescript": "^2.6.2"
   },
   "dependencies": {
+    "@types/mersenne-twister": "^1.1.2",
     "callsites": "^2.0.0",
     "colors": "^1.1.2",
+    "mersenne-twister": "^1.1.0",
     "require-glob": "^3.2.0",
     "rxjs": "^6.3.2",
     "rxjs-compat": "^6.3.3",

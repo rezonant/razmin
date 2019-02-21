@@ -1,6 +1,8 @@
 export interface TestExecutionSettingsDef {
     timeout? : number;
-    contextName? : string;    
+    contextName? : string;
+    order? : 'default' | 'random';
+    orderSeed? : number;
 }
 
 export class TestExecutionSettings implements TestExecutionSettingsDef {
@@ -11,6 +13,8 @@ export class TestExecutionSettings implements TestExecutionSettingsDef {
     
     contextName : string;
     timeout : number = 10 * 1000;
+    order : 'default' | 'random' = 'default';
+    orderSeed : number = undefined;
 
     clone(props : TestExecutionSettingsDef) {
         return Object.assign(new TestExecutionSettings(this), props);
