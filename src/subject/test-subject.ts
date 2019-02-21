@@ -74,9 +74,23 @@ export class TestSubject implements LifecycleContainer {
      */
     public async run(testExecutionSettings? : TestExecutionSettings): Promise<TestSubjectResult> {
         let results : TestResult[] = [];
+        let tests : Test[] = this._tests;
+        let only : Test[] = [];
 
-        for (let test of this._tests) {
+        for (let test of tests) {
+            if (test.options.only)
+                only.push(test);
+        }
+
+
+        for (let test of tests) {
             let result : TestResult;
+
+            if (only.length > 0 && !only.includes(test)) {
+                result = new TestResult(test.description, 'skip', 'Skipped', true);
+                results.push(result);
+                continue;
+            }
 
             await this.fireEvent('before');
             result = await this.runTest(test, testExecutionSettings);

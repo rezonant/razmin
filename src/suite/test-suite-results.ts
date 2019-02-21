@@ -43,16 +43,23 @@ export class TestSuiteResults {
 
             for (let testResult of subjectResult.tests) {
                 total += 1;
+
+                let report = !testResult.hidden;
+
                 if (testResult.passed === 'skip') {
                     skipped += 1;
-                    console.log(colors.yellow(` (S) ${subjectResult.description} ${testResult.description}`));
+                    if (report)
+                        console.log(colors.yellow(` (S) ${subjectResult.description} ${testResult.description}`));
                 } else if (testResult.passed) {
                     passed += 1;
-                    console.log(colors.green(`  ✓  ${subjectResult.description} ${testResult.description}`));
+                    if (report) 
+                        console.log(colors.green(`  ✓  ${subjectResult.description} ${testResult.description}`));
                 } else {
                     failed += 1;
-                    console.log(colors.red( `  ✗  ${subjectResult.description} ${testResult.description}`));
-                    console.log(            `     ${testResult.message}`);
+                    if (report) {
+                        console.log(colors.red( `  ✗  ${subjectResult.description} ${testResult.description}`));
+                        console.log(            `     ${testResult.message}`);
+                    }
                 }
             }
         }
