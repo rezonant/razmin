@@ -9,7 +9,7 @@ import { TestSuite } from "../suite";
 import { Reporter } from '../reporting';
 import { TestExecutionSettings, TestExecutionSettingsDef } from "../core";
 import { TestSubject } from "../subject";
-import { TestFunction } from "../test";
+import { TestFunction, TestOptions } from "../test";
 import { TestSuiteResults } from "../suite";
 
 import { TestSuiteFactory } from "./test-suite-factory";
@@ -20,6 +20,7 @@ import * as path from 'path';
 import { TestSubjectBuilder } from "./test-subject-builder";
 import { TestFactory } from "./test-factory";
 import { LifecycleContainer } from "../util";
+import { TestBuilder } from "./test-builder";
 
 export class FluentSuite {
     constructor(settings : DslSettings = {}) {
@@ -128,7 +129,7 @@ export async function buildSuite(paths : string[], options? : DslSettings, testS
     return testSuite;
 }
 
-export async function describe(description : string, testFactory : TestFactory) {
+async function describeRaw(description : string, testFactory : TestFactory, options? : TestOptions) {
     let testSuite : TestSuite = Zone.current.get('razminTestSuite');
     if (!testSuite) {
         suiteDeclaration(() => describe(description, testFactory));
@@ -154,6 +155,8 @@ export async function describe(description : string, testFactory : TestFactory) 
         }
     });
 
+    // TODO: use options
+
     await new Promise((resolve, reject) => {
         zone.run(async () => {
             try { 
@@ -169,13 +172,27 @@ export async function describe(description : string, testFactory : TestFactory) 
     });
 }
 
-export async function it(testDescription : string, func : TestFunction) {
+describeRaw['skip'] = (desc, fac, opts?) => {
+    describeRaw(desc, fac, Object.assign({ skip: true }, opts || {}));
+};
+
+describeRaw['only'] = (desc, fac, opts?) => {
+    describeRaw(desc, fac, Object.assign({ only: true }, opts || {}));
+};
+
+export const describe : TestSubjectBuilder = describeRaw as any;
+
+async function itRaw(testDescription : string, func : TestFunction, options? : TestOptions) {
     let subject : TestSubject = Zone.current.get('razminSubject');
     if (!subject)
         throw new Error(`You can only call it() from inside a describe() block.`);
     
-    subject.addTest(testDescription, func);
+    subject.addTest(testDescription, func, options);
 }
+
+itRaw['skip'] = (desc, func) => it(desc, func, { skip: true });
+itRaw['only'] = (desc, func) => it(desc, func, { only: true });
+export const it : TestBuilder = itRaw as any;
 
 async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSettings): Promise<TestSuiteResults>
 {

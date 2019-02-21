@@ -24,3 +24,8 @@ export interface SyncTestFunction {
 }
 
 export type TestFunction = AsyncTestFunction | SyncTestFunction;
+
+export interface TestOptions {
+    skip? : boolean;
+    only? : boolean;
+}

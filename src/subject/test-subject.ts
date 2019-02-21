@@ -1,4 +1,4 @@
-import { Test } from "../test";
+import { Test, TestOptions } from "../test";
 import { TestFunction } from "../test";
 import { TestSubjectResult } from "../subject";
 import { TestResult } from "../test";
@@ -53,8 +53,8 @@ export class TestSubject implements LifecycleContainer {
      * @param description 
      * @param func 
      */
-    public addTest(description : string, func : TestFunction) {
-        this._tests.push(new Test(description, func));
+    public addTest(description : string, func : TestFunction, options? : TestOptions) {
+        this._tests.push(new Test(description, func, options));
     }
 
     /**

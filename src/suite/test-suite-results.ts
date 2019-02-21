@@ -43,7 +43,10 @@ export class TestSuiteResults {
 
             for (let testResult of subjectResult.tests) {
                 total += 1;
-                if (testResult.passed) {
+                if (testResult.passed === 'skip') {
+                    skipped += 1;
+                    console.log(colors.yellow(` (S) ${subjectResult.description} ${testResult.description}`));
+                } else if (testResult.passed) {
                     passed += 1;
                     console.log(colors.green(`  ✓  ${subjectResult.description} ${testResult.description}`));
                 } else {
@@ -56,8 +59,8 @@ export class TestSuiteResults {
 
         console.log();
 
-        if (failed > 0 && passed > 0)
-            console.log(`ran ${total} test(s): ${colors.green(`${passed} passed`)}, ${colors.red(`${failed} failed`)}`);
+        if ((failed > 0 && passed > 0) || skipped > 0)
+            console.log(`ran ${total} test(s): ${colors.green(`${passed} passed`)}, ${colors.yellow(`${skipped} skipped`)}, ${colors.red(`${failed} failed`)}`);
         else if (failed > 0)
             console.log(`${colors.red(`${failed} / ${total} test(s) failed`)}`);
         else // passed > 0

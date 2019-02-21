@@ -2,7 +2,7 @@ import "zone.js";
 import * as colors from 'colors/safe';
 
 import { TestResult } from "./test-result";
-import { TestFunction, DoneCallback } from "./test-function";
+import { TestFunction, DoneCallback, TestOptions } from "./test-function";
 import { delay, TestZone } from '../util';
 import { TestExecutionSettings } from "../core";
 
@@ -18,7 +18,8 @@ const ENABLE_NODE_REJECTION_DETECTION = false;
 export class Test {
     public constructor(
         private _description : string, 
-        private _function : TestFunction
+        private _function : TestFunction,
+        private _options : TestOptions = {}
     ) {
     }
 
@@ -28,6 +29,10 @@ export class Test {
 
     public get function() {
         return this._function;
+    }
+
+    public get options() {
+        return this._options || {};
     }
 
     /**
@@ -138,6 +143,10 @@ export class Test {
      * @param executionSettings 
      */
     public async run(executionSettings? : TestExecutionSettings, contextName? : string): Promise<TestResult> {
+
+        if (this.options.skip)
+            return new TestResult(this._description, 'skip', "Skipped");
+
         executionSettings = (executionSettings || new TestExecutionSettings()).clone({ contextName });
         
         let timeOutToken = {};

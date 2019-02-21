@@ -557,6 +557,18 @@ async function runTests() {
                 await test.run(null, "This Test!");
                 expect(success).to.eq(true);
             });
+            it('should be able to skip a test function', async () => {
+                let ran = false;
+                let test = new Test('test', () => {
+                    ran = true;
+                }, { skip: true });
+
+                let results = await test.run(null, "This Test!");
+                expect(ran).to.eq(false);
+
+                expect(results.passed).to.eq('skip');
+                expect(results.message).to.contain('Skipped');
+            });
             it('should execute within a TestZone', async () => {
                 let success = false;
                 let zone = Zone.current;

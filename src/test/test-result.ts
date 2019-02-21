@@ -2,7 +2,7 @@
 export class TestResult {
     public constructor(
         private _description : string,
-        private _passed : boolean,
+        private _passed : boolean | 'skip',
         private _message? : string
     ) {
 
