@@ -43,23 +43,27 @@ Finished in 0.006 seconds
 Randomized with seed 65397 (jasmine --random=true --seed=65397)
 ```
 
-### Project Goals
+## Project Goals
 - No failure should be misreported as a success (false positives). 
 - Reduce the likelihood a developer will fumble on asynchronous testing
 - Reduce the ceremony a developer must invoke to accomplish their asynchronous testing
 - Produce a testing framework with no impedance mismatch for Typescript developers
 
-### License
+## Should I use it yet?
+
+Consider Razmin to be beta quality as of version 0.5.2. 
+
+## License
 
 This software is provided under the terms of the MIT License. See `LICENSE` for details.
 
-### Installation
+## Installation
 
 ```sh
 npm install razmin --save-dev
 ```
 
-### Usage
+## Usage
 
 The simplest way to use Razmin is to use the Jasmine-style API. 
 
@@ -120,20 +124,24 @@ To skip a test, change the `it()` block to be `it.skip()`. This serves the same 
 You may wish to run a single test instead of the whole suite. Change any `it()` block to be 
 `it.only()`. If there is at least one `it.only()` in your suite, then only the tests declared with `it.only()` will be run.
 
-### Ordering
+### Unhandled Promise Rejections
 
-By default Razmin runs tests in the exact order they are declared (following load order). You can 
-also enable random ordering by setting `executionSettings.order` to `"random"`. Should you do so,
-you can also specify the random seed to use with `executionSettings.orderSeed`. If you do not specify
-a seed, one will be randomly selected for you.
+**Razmin does not (yet!) detect unhandled promise rejections, which are not caused by exceptions, on any platform.** There is experimental support in the codebase, but it is not yet ready for use.
 
-### Configuration
+## Configuration
 
 Any `suite()` call may define the settings of the overall test suite. In the case of nested suites, options in the nested suite are ignored. Pass the options as the second argument of the suite when declaring one, or when using the fluent API, `suite().withOptions({ ... })`.
 
 ### Timeouts
 
 By default tests may run for up to 10 seconds before they fail as timed out. Use `executionSettings.timeout` to configure this.
+
+### Ordering
+
+By default Razmin runs tests in the exact order they are declared (following load order). You can 
+also enable random ordering by setting `executionSettings.order` to `"random"`. Should you do so,
+you can also specify the random seed to use with `executionSettings.orderSeed`. If you do not specify
+a seed, one will be randomly selected for you.
 
 ### Reporters
 
@@ -143,17 +151,21 @@ You can define your own reporters. When reporters are specified, Razmin will not
 
 By default when you execute a suite, either by executing your suite or using `suite().run()`, Razmin will exit the process with either a zero status code (success) or a one status code (failure). You may wish to suppress this, to do so set the `exitAndReport` option to `false`.
 
-### Contributing
+## Contributing
 
 Fork on [Github](http://github.com/rezonant/razmin), file issues, and send pull requests!
 
-### Testing
+## Testing
 
 To test this package:
 
 ```npm test```
 
-### Authors
+The test suite is comprised of a set of "sanity tests" which are not dependent on Razmin, and an
+extended test suite which does depend on Razmin. The sanity tests are where core assumptions are 
+tested, and the extended test suite tests everything else.
+
+## Authors
 
 - William Lahti <<wilahti@gmail.com>>
 
