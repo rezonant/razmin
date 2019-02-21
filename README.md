@@ -115,6 +115,18 @@ suite(() => {
 
 To skip a test, change the `it()` block to be `it.skip()`. This serves the same purpose as Jasmine's `xit()` variant.
 
+### Running a single test
+
+You may wish to run a single test instead of the whole suite. Change any `it()` block to be 
+`it.only()`. If there is at least one `it.only()` in your suite, then only the tests declared with `it.only()` will be run.
+
+### Ordering
+
+By default Razmin runs tests in the exact order they are declared (following load order). You can 
+also enable random ordering by setting `executionSettings.order` to `"random"`. Should you do so,
+you can also specify the random seed to use with `executionSettings.orderSeed`. If you do not specify
+a seed, one will be randomly selected for you.
+
 ### Configuration
 
 Any `suite()` call may define the settings of the overall test suite. In the case of nested suites, options in the nested suite are ignored. Pass the options as the second argument of the suite when declaring one, or when using the fluent API, `suite().withOptions({ ... })`.
