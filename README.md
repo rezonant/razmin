@@ -111,6 +111,10 @@ suite(() => {
 });
 ```
 
+### Skipping Tests
+
+To skip a test, change the `it()` block to be `it.skip()`. This serves the same purpose as Jasmine's `xit()` variant.
+
 ### Configuration
 
 Any `suite()` call may define the settings of the overall test suite. In the case of nested suites, options in the nested suite are ignored. Pass the options as the second argument of the suite when declaring one, or when using the fluent API, `suite().withOptions({ ... })`.
