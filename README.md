@@ -28,9 +28,20 @@ thing to ensure that errors in the code of your tests always trigger the failure
 by using the power of Zone.js.
 
 The code sample above nicely demonstrates this. Note that there is no `done()` invocation, no
-promises involved whatsoever, and yet Razmin is able to see this as a failed test. Traditional frameworks like Jasmine would indicate that the test passed and print an uncaught promise 
-rejection. Newer versions of Node.js will cause failure in this scenario, but that still means
-the printed results are wrong. 
+promises involved whatsoever, and yet Razmin knows to wait for the timeout to complete, and detects the exception causing the test to fail. Traditional frameworks like Jasmine would indicate that the test passed with no indication. 
+
+Here's the same test ran as a Jasmine spec:
+```
+> jasmine
+Randomized with seed 65397
+Started
+.
+
+
+1 spec, 0 failures
+Finished in 0.006 seconds
+Randomized with seed 65397 (jasmine --random=true --seed=65397)
+```
 
 ### Project Goals
 - No failure should be misreported as a success (false positives). 
@@ -45,7 +56,7 @@ This software is provided under the terms of the MIT License. See `LICENSE` for 
 ### Installation
 
 ```sh
-npm install razmin --save
+npm install razmin --save-dev
 ```
 
 ### Usage
@@ -62,8 +73,8 @@ a single test suite at the top level. This relationship exists across `import`/`
 
 ```ts
 suite(() => {
-   import "./foo.test";
-   import "./bar.test";
+   require("./foo.test");
+   require("./bar.test");
 });
 ```
 
@@ -77,12 +88,12 @@ suite()
 ;
 ```
 
-When this is executed, it will instruct Razmin to find and `import` all matching test files 
+When this is executed, it will instruct Razmin to find and `require()` all matching test files 
 in the context of the suite you are defining. `run()` causes the tests to be run, results to 
 be printed, and the process exited with either success or failure.
 
 **Important**: The file extensions are important here. In most cases you will be running your tests on the compiled Javascript, so `.js` is appropriate. In this case, using patterns ending
-with `.ts` **will not execute your tests**.
+with `.ts` will not execute your tests, even if they were originally authored as Typescript.
 
 If you are not running your tests in Node.js you may want to solve this another way. 
 
