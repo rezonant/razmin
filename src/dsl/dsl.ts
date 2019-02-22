@@ -21,6 +21,9 @@ import { TestSubjectBuilder } from "./test-subject-builder";
 import { TestFactory } from "./test-factory";
 import { LifecycleContainer } from "../util";
 import { TestBuilder } from "./test-builder";
+import { ConsoleReporter } from "../reporting";
+
+const DEFAULT_REPORTERS = [ ConsoleReporter ];
 
 export class FluentSuite {
     constructor(settings : DslSettings = {}) {
@@ -71,7 +74,8 @@ export class FluentSuite {
 
     async run() {
         let results = await this.runForResults();
-        results.report(this.settings.reporters);
+        
+        results.report(this.settings.reporters || DEFAULT_REPORTERS);
         if (this.settings.exitAndReport !== false)
             results.exitAndReport();
     }
@@ -249,7 +253,7 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
         throw e;
     }
 
-    results.report(settings.reporters);
+    results.report(settings.reporters || DEFAULT_REPORTERS);
     if (settings.exitAndReport !== false)
         results.exitAndReport();
 
