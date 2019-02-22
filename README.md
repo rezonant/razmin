@@ -18,7 +18,11 @@ describe('timeouts', () => {
 ```
 
 ## What is this?
-Razmin runs each of your tests within its own Zone.js zone. Any exception that occurs within your test, even across asynchronous operations, is traced by Razmin and considered a test failure. This means there is no special syntax or ceremony associated with writing your tests in an asynchronous style, and you can use any assertion library you wish, or go without and simply throw exceptions when you wish for your test to fail.
+Razmin runs each of your tests within its own Zone.js zone. Any exception that occurs within your 
+test, even across asynchronous operations, is traced by Razmin and considered a test failure. This 
+means there is no special syntax or ceremony associated with writing your tests in an asynchronous 
+style, and you can use any assertion library you wish, or go without and simply throw exceptions when 
+you wish for your test to fail.
 
 This is sorely needed for testing highly asynchronous code. Between `done()`, promises, async,
 and even generators, it can take a lot of extra code to ensure your tests won't show success 
@@ -27,7 +31,9 @@ thing to ensure that errors in the code of your tests always trigger the failure
 by using the power of Zone.js.
 
 The code sample above nicely demonstrates this. Note that there is no `done()` invocation, no
-promises involved whatsoever, and yet Razmin knows to wait for the timeout to complete, and detects the exception causing the test to fail. Traditional frameworks like Jasmine would indicate that the test passed with no indication. 
+promises involved whatsoever, and yet Razmin knows to wait for the timeout to complete, and detects 
+the exception causing the test to fail. Traditional frameworks like Jasmine would indicate that the 
+test passed with no indication. 
 
 Here's the same test ran as a Jasmine spec:
 ```
@@ -72,15 +78,17 @@ Mocha does better than Jasmine by not forcing an exit upon completion of the tes
 Node.js itself will normally wait for async tasks to complete before ending the process.
 Mocha simply does not exit after printing it's results, which means that Node.js reports the 
 uncaught exception and the exit code becomes non-zero, so this would be caught in a typical 
-continuous integration flow, but there's no traceability into which test caused the exception, and custom reporters would have no access to the failure information.
+continuous integration flow, but there's no traceability into which test caused the exception, and 
+custom reporters would have no access to the failure information.
 
 ## Project Goals
-- No false positives: No test should pass when it shouldn't have, and any type of test failure we can detect should be detected
+- No false positives: No test should pass when it shouldn't have, and any type of test failure we 
+  can detect should be detected
 - Ease of use: Reduce the ceremony needed for async unit testing
 - Clarity: Reduce the chance that a developer will fumble on asynchronous testing
 - Modern: No impedance mismatch for ES6/Typescript developers
 
-## Should I use it yet?
+## Is it ready?
 
 Consider Razmin to be beta quality as of version 0.5.2. 
 
@@ -92,20 +100,23 @@ npm install razmin --save-dev
 
 ## Usage
 
-The simplest way to use Razmin is to use the Jasmine-style API. 
+The simplest way to use Razmin is to use the Jasmine/Mocha-style API. 
 
-Razmin tests are run imperatively. There's no top level CLI to run, instead
-you execute a test script which either contains your tests or loads your tests 
-from other scripts. `describe()` blocks are self executing, and the result of each test is 
-automatically coalesced into the final test results.
+Razmin tests are run imperatively. There's no top level CLI to run, instead you execute a test script 
+which either contains your tests or loads your tests from other scripts. `describe()` blocks are self 
+executing, and the result of each test is automatically coalesced into the final test results. The 
+individual tests (defined with `it()` blocks) are collected and run once all `describe()` blocks have 
+run.
 
-One difference between Razmin and Jasmine is the `suite()` block. Suites are optional, but 
-are useful for combining multiple test subjects (`describe()` blocks) into a single test suite for
-reporting purposes. Note that you can still nest `describe()` blocks as you would in Jasmine,
-but you cannot specify options to Razmin without declaring a `suite()` block.
+A notable addition over the Jasmine/Mocha test running model is the `suite()` block. Suites are 
+optional, but are useful for combining multiple test subjects (`describe()` blocks) into a single 
+test suite for reporting purposes. Note that you can still nest `describe()` blocks as you would in 
+Jasmine, but you cannot specify options to Razmin without declaring a `suite()` block.
 
 Each `suite()` block can have nested `suite()` blocks and they all combine to be represented by 
-a single test suite at the top level. This relationship holds across `require()` calls (provided this is the first time that the module was included), so you could directly require your individual test files from a top-level suite block if you wish. 
+a single test suite at the top level. This relationship holds across `require()` calls (provided this 
+is the first time that the module was included), so you could directly require your individual test 
+files from a top-level suite block if you wish. 
 
 ```ts
 suite(() => {
@@ -144,24 +155,30 @@ suite(() => {
 
 ### Skipping Tests
 
-To skip a test, change the `it()` block to be `it.skip()`. This serves the same purpose as Jasmine's `xit()` variant.
+To skip a test, change the `it()` block to be `it.skip()`. This serves the same purpose as Jasmine's 
+`xit()` variant.
 
 ### Running a single test
 
 You may wish to run a single test instead of the whole suite. Change any `it()` block to be 
-`it.only()`. If there is at least one `it.only()` in your suite, then only the tests declared with `it.only()` will be run.
+`it.only()`. If there is at least one `it.only()` in your suite, then only the tests declared with 
+`it.only()` will be run.
 
 ### Unhandled Promise Rejections
 
-**Razmin does not (yet!) detect unhandled promise rejections, which are not caused by exceptions, on any platform.** There is experimental support in the codebase, but it is not yet ready for use.
+**Razmin does not (yet!) detect unhandled promise rejections, which are not caused by exceptions, on 
+any platform.** There is experimental support in the codebase, but it is not yet ready for use.
 
 ## Configuration
 
-Any `suite()` call may define the settings of the overall test suite. In the case of nested suites, options in the nested suite are ignored. Pass the options as the second argument of the suite when declaring one, or when using the fluent API, `suite().withOptions({ ... })`.
+Any `suite()` call may define the settings of the overall test suite. In the case of nested suites, 
+options in the nested suite are ignored. Pass the options as the second argument of the suite when 
+declaring one, or when using the fluent API, `suite().withOptions({ ... })`.
 
 ### Timeouts
 
-By default tests may run for up to 10 seconds before they fail as timed out. Use `executionSettings.timeout` to configure this.
+By default tests may run for up to 10 seconds before they fail as timed out. Use 
+`executionSettings.timeout` to configure this.
 
 ### Ordering
 
@@ -172,11 +189,15 @@ a seed, one will be randomly selected for you.
 
 ### Reporters
 
-You can define your own reporters. When reporters are specified, Razmin will not print results to the terminal (even if an empty set of reporters is provided). Use the `reporters` option to pass the set of reporters you'd like to use from your root test suite.
+You can define your own reporters. When reporters are specified, Razmin will not print results to the 
+terminal (even if an empty set of reporters is provided). Use the `reporters` option to pass the set 
+of reporters you'd like to use from your root test suite.
 
 ### Exit and Report
 
-By default when you execute a suite, either by executing your suite or using `suite().run()`, Razmin will exit the process with either a zero status code (success) or a one status code (failure). You may wish to suppress this, to do so set the `exitAndReport` option to `false`.
+By default when you execute a suite, either by executing your suite or using `suite().run()`, Razmin 
+will exit the process with either a zero status code (success) or a one status code (failure). You 
+may wish to suppress this, to do so set the `exitAndReport` option to `false`.
 
 ## Contributing
 
