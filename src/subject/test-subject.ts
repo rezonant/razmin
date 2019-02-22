@@ -101,7 +101,7 @@ export class TestSubject implements LifecycleContainer {
 
             mt.init_seed(seed);
             tests = tests.sort((a, b) => mt.random() - 0.5);
-        } else if (testExecutionSettings.order == 'default') {
+        } else if (order == 'default') {
             // order as observed
         } else {
             throw new Error(`Test ordering '${testExecutionSettings.order}' is not supported`);
