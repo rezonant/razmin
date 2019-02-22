@@ -141,8 +141,12 @@ async function describeRaw(description : string, testFactory : TestFactory, opti
     }
 
     let parentSubject : TestSubject = Zone.current.get('razminSubject');
-    if (parentSubject)
-        description = `${parentSubject.description} ${description}`;
+    if (parentSubject) {
+        if (/^[^A-Za-z0-9].*/.test(description))
+            description = `${parentSubject.description}${description}`;
+        else
+            description = `${parentSubject.description} ${description}`;
+    }
 
     let parent : LifecycleContainer = Zone.current.get('razminLifecycleContainer');;
     if (!parent)

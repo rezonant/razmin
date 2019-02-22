@@ -8,6 +8,9 @@ export function ConsoleReporter(results : TestSuiteResults) : void {
     let skipped = 0;
 
     for (let subjectResult of results.subjectResults) {
+        if (subjectResult.tests.length == 0)
+            continue;
+        
         console.log();
         console.log(colors.yellow(subjectResult.description));
 
