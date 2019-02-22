@@ -139,7 +139,8 @@ When this is executed, it will instruct Razmin to find and `require()` all match
 in the context of the suite you are defining. `run()` causes the tests to be run, results to 
 be printed, and the process exited with either success or failure.
 
-**Important**: The file extensions are important here. In most cases you will be running your tests on the compiled Javascript, so `.js` is appropriate. In this case, using patterns ending
+**Important**: The file extensions are important here. In most cases you will be running your tests 
+on the compiled Javascript, so `.js` is appropriate. In this case, using patterns ending
 with `.ts` will not execute your tests, even if they were originally authored as Typescript.
 
 If you are not running your tests in Node.js you may want to solve this another way. 
@@ -163,6 +164,30 @@ To skip a test, change the `it()` block to be `it.skip()`. This serves the same 
 You may wish to run a single test instead of the whole suite. Change any `it()` block to be 
 `it.only()`. If there is at least one `it.only()` in your suite, then only the tests declared with 
 `it.only()` will be run.
+
+### Setup and Teardown using before/after
+
+You can specify code that should run before or after all tests within the same describe() block 
+(and all nested `describe()` blocks). Use `before()` and `after()`:
+
+```typescript
+import { describe, before, after } from 'razmin';
+
+describe('a thing', it => {
+    before(() => console.log('before'))
+    after(() => console.log('after'))
+    it('works', () => console.log('works'))
+    it('also works', () => console.log('also works'))
+})
+
+// Console output:
+//   before
+//   works
+//   after
+//   before
+//   also works
+//   after
+```
 
 ### Unhandled Promise Rejections
 

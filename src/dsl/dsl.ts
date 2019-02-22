@@ -186,6 +186,20 @@ describeRaw['only'] = (desc, fac, opts?) => {
 
 export const describe : TestSubjectBuilder = describeRaw as any;
 
+export function before(func : Function) {
+    let subject : TestSubject = Zone.current.get('razminSubject');
+    if (!subject)
+        throw new Error(`before() must be run within a describe() block`);
+    subject.addEventListener('before', () => func());
+}
+
+export function after(func : Function) {
+    let subject : TestSubject = Zone.current.get('razminSubject');
+    if (!subject)
+        throw new Error(`after() must be run within a describe() block`);
+    subject.addEventListener('after', () => func());
+}
+
 async function itRaw(testDescription : string, func : TestFunction, options? : TestOptions) {
     let subject : TestSubject = Zone.current.get('razminSubject');
     if (!subject)

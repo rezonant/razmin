@@ -1,4 +1,4 @@
-import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach, afterEach } from '../src';
+import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach, afterEach, before, after } from '../src';
 import { delay } from '../src/util';
 import { expect } from 'chai';
 import * as colors from 'colors/safe';
@@ -451,6 +451,62 @@ export async function test() {
                 expect(result.tests[0].passed).to.eq(true);
                 expect(result.tests[1].passed).to.eq(false);
             }
+        ],
+        [
+            'before() should run before each test',
+            {},
+            async () => {
+                let message = '';
+                let value = '';
+                let results = await suite(describe => {
+                    describe('thing1', () => {
+                        describe('should do a thing', it => {
+
+                            before(() => value += 'B');
+
+                            it('will succeed', async () => value += '1');
+                            it('will succeed', async () => value += '2');
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('B1B2');
+            }
+        ],
+        [
+            'after() should run after each test',
+            {},
+            async () => {
+                let message = '';
+                let value = '';
+                let results = await suite(describe => {
+                    describe('thing1', () => {
+                        describe('should do a thing', it => {
+
+                            after(() => value += 'A');
+
+                            it('will succeed', async () => value += '1');
+                            it('will succeed', async () => value += '2');
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('1A2A');
+            }
         ]
     ];
 
@@ -545,6 +601,14 @@ async function runTests() {
 
                 expect(subject.tests.length).to.eq(10);
             });
+        });
+
+        describe('DSL', () => {
+            describe('.before', it => {
+                let value = 0;
+                before(() => value += 1);
+                it('runs before() before tests', () => expect(value).to.eq(1));
+            })
         });
 
         describe('Test', it => {
