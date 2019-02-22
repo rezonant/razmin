@@ -481,6 +481,46 @@ export async function test() {
             }
         ],
         [
+            'before() should work in nested describe()',
+            {},
+            async () => {
+                let message = '';
+                let value = '';
+                let results = await suite(describe => {
+                    describe('thing1', () => {
+                        describe('should do a thing', it => {
+
+                            before(() => value += 'B');
+
+                            it('will succeed', async () => value += '1');
+                            it('will succeed', async () => value += '2');
+
+                            describe('deeper things', it => {
+
+                                before(() => value += 'b');
+
+                                it('will succeed', async () => value += '3');
+                                it('will succeed', async () => value += '4');
+                                describe('even deeper', it => {
+                                    it('will succeed', async () => value += '5');
+                                    it('will succeed', async () => value += '6');
+                                })
+                            });
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('B1B2Bb3Bb4Bb5Bb6');
+            }
+        ],
+        [
             'after() should run after each test',
             {},
             async () => {
@@ -506,6 +546,46 @@ export async function test() {
 
                 expect(result.passed).to.eq(true);
                 expect(value).to.eq('1A2A');
+            }
+        ],
+        [
+            'after() should work in nested describe()',
+            {},
+            async () => {
+                let message = '';
+                let value = '';
+                let results = await suite(describe => {
+                    describe('thing1', () => {
+                        describe('should do a thing', it => {
+
+                            after(() => value += 'A');
+
+                            it('will succeed', async () => value += '1');
+                            it('will succeed', async () => value += '2');
+
+                            describe('deeper things', it => {
+
+                                after(() => value += 'a');
+
+                                it('will succeed', async () => value += '3');
+                                it('will succeed', async () => value += '4');
+                                describe('even deeper', it => {
+                                    it('will succeed', async () => value += '5');
+                                    it('will succeed', async () => value += '6');
+                                })
+                            });
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('1A2A3Aa4Aa5Aa6Aa');
             }
         ]
     ];
