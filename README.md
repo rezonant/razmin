@@ -5,12 +5,11 @@ A testing framework for modern Javascript.
 
 ```ts
 import { describe, it } from 'razmin';
-import { expect } from 'chai';
 
 describe('timeouts', () => {
     it('can be traced', () => {
         setTimeout(() => {
-            expect(3).to.equal(2);
+            throw new Error("fail");
         }, 3 * 1000);
     });
 });
@@ -43,19 +42,47 @@ Finished in 0.006 seconds
 Randomized with seed 65397 (jasmine --random=true --seed=65397)
 ```
 
+And here's the same test ran as a Mocha test:
+```
+> mocha spec/**.js
+
+
+  thing
+    √ is so
+
+
+  1 passing (6ms)
+
+.\spec\exampleSpec.js:4
+                        throw new Error('fail');
+                        ^
+
+Error: fail
+    at Timeout.setTimeout [as _onTimeout] (.\spec\exampleSpec.js:4:10)
+    at ontimeout (timers.js:427:11)
+    at tryOnTimeout (timers.js:289:5)
+    at listOnTimeout (timers.js:252:5)
+    at Timer.processTimers (timers.js:212:10)
+mocha-test> echo $?
+False
+mocha-test>
+```
+
+Mocha does better than Jasmine by not forcing an exit upon completion of the test suite.
+Node.js itself will normally wait for async tasks to complete before ending the process.
+Mocha simply does not exit after printing it's results, which means that Node.js reports the 
+uncaught exception and the exit code becomes non-zero, so this would be caught in a typical 
+continuous integration flow, but there's no traceability into which test caused the exception, and custom reporters would have no access to the failure information.
+
 ## Project Goals
-- No failure should be misreported as a success (false positives). 
-- Reduce the likelihood a developer will fumble on asynchronous testing
-- Reduce the ceremony a developer must invoke to accomplish their asynchronous testing
-- Produce a testing framework with no impedance mismatch for Typescript developers
+- No false positives: No test should pass when it shouldn't have, and any type of test failure we can detect should be detected
+- Ease of use: Reduce the ceremony needed for async unit testing
+- Clarity: Reduce the chance that a developer will fumble on asynchronous testing
+- Modern: No impedance mismatch for ES6/Typescript developers
 
 ## Should I use it yet?
 
 Consider Razmin to be beta quality as of version 0.5.2. 
-
-## License
-
-This software is provided under the terms of the MIT License. See `LICENSE` for details.
 
 ## Installation
 
@@ -164,6 +191,10 @@ To test this package:
 The test suite is comprised of a set of "sanity tests" which are not dependent on Razmin, and an
 extended test suite which does depend on Razmin. The sanity tests are where core assumptions are 
 tested, and the extended test suite tests everything else.
+
+## License
+
+This software is provided under the terms of the MIT License. See `LICENSE` for details.
 
 ## Authors
 
