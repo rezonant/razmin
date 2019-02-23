@@ -787,6 +787,33 @@ export async function test() {
                 expect(result.passed).to.eq(true);
                 expect(value).to.eq('12');
             }
+        ],
+        [
+            'suite() should support dynamic test definitions',
+            { skip: false },
+            async () => {
+                let message = '';
+                let value = 0;
+                let results = await suite(async describe => {
+                    describe('thing1', async it => {
+                        await delay(100);
+                        for (let i = 0, max = 5; i < max; ++i) 
+                            it(`will succeed ${i}`, async () => value += i);
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+                
+                let result = results.subjectResults.find(x => x.description == 'thing1');
+
+                expect(result).to.not.eq(undefined);
+                expect(result.tests.length).to.eq(5);
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq(10);
+                for (let i = 0, max = 5; i < max; ++i)
+                    expect(result.tests.find(x => x.description.includes(`will succeed ${i}`))).to.exist;
+            }
         ]
     ];
 
