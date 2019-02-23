@@ -7,7 +7,7 @@ require('source-map-support').install();
 
 import { TestSuite } from "../suite";
 import { Reporter } from '../reporting';
-import { TestExecutionSettings, TestExecutionSettingsDef } from "../core";
+import { TestExecutionSettings, TestExecutionSettingsSpec } from "../core";
 import { TestSubject } from "../subject";
 import { TestFunction, TestOptions, Skip } from "../test";
 import { TestSuiteResults } from "../suite";
@@ -22,13 +22,14 @@ import { TestFactory } from "./test-factory";
 import { LifecycleContainer, TestZone, descriptionConcat } from "../util";
 import { TestBuilder } from "./test-builder";
 import { ConsoleReporter } from "../reporting";
+import { TestReportingSettingsSpec, TestReportingSettings } from "../core/test-reporting-settings";
 
 const DEFAULT_REPORTERS = [ ConsoleReporter ];
 
 export class FluentSuite {
     constructor(settings : DslSettings = {}) {
         this._settings = settings;
-        this.suite = new TestSuite(new TestExecutionSettings(settings.testExecutionSettings));
+        this.suite = new TestSuite(new TestExecutionSettings(settings.execution));
     }
 
     private _settings : DslSettings;
@@ -39,9 +40,9 @@ export class FluentSuite {
     }
 
     withTimeout(millis : number): this {
-        if (!this._settings.testExecutionSettings)
-            this._settings.testExecutionSettings = {};
-        this._settings.testExecutionSettings.timeout = millis;
+        if (!this._settings.execution)
+            this._settings.execution = {};
+        this._settings.execution.timeout = millis;
 
         return this;
     }
@@ -51,8 +52,8 @@ export class FluentSuite {
             throw new Error(`You must pass an object to withOptions()`);
         
         this._settings = settings;
-        if (settings.testExecutionSettings)
-            this.suite.testExecutionSettings = new TestExecutionSettings(settings.testExecutionSettings);
+        if (settings.execution)
+            this.suite.executionSettings = new TestExecutionSettings(settings.execution);
 
         return this;
     }
@@ -75,8 +76,8 @@ export class FluentSuite {
     async run() {
         let results = await this.runForResults();
         
-        results.report(this.settings.reporters || DEFAULT_REPORTERS);
-        if (this.settings.exitAndReport !== false)
+        results.report(this.settings.reporting.reporters || DEFAULT_REPORTERS);
+        if (this.settings.reporting.exitAndReport !== false)
             results.exitAndReport();
     }
 
@@ -86,9 +87,8 @@ export class FluentSuite {
 }
 
 export interface DslSettings {
-    reporters? : Reporter[];
-    exitAndReport? : boolean;
-    testExecutionSettings? : TestExecutionSettingsDef;
+    execution? : TestExecutionSettingsSpec;
+    reporting? : TestReportingSettingsSpec;
 }
 
 export async function runSuite(paths : string[], options? : DslSettings): Promise<TestSuiteResults> {
@@ -104,7 +104,7 @@ export async function buildSuite(paths : string[], options? : DslSettings, testS
     let top = false;
 
     if (!testSuite)
-        testSuite = new TestSuite(new TestExecutionSettings(options.testExecutionSettings));
+        testSuite = new TestSuite(new TestExecutionSettings(options.execution), new TestReportingSettings(options.reporting));
 
     let zone = Zone.current.fork({
         name: 'razminSuiteZone',
@@ -231,6 +231,10 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
 {
     if (!settings)
         settings = {};
+    if (!settings.reporting)
+        settings.reporting = {};
+    if (!settings.execution)
+        settings.execution = {};
 
     // Build the test suite 
 
@@ -242,7 +246,7 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
     if (topLevelSuite) {
         testSuite = topLevelSuite;
     } else {
-        testSuite = topLevelSuite = new TestSuite(new TestExecutionSettings(settings.testExecutionSettings));
+        testSuite = topLevelSuite = new TestSuite(new TestExecutionSettings(settings.execution), new TestReportingSettings(settings.reporting));
         top = true;
         zone = zone.fork({
             name: 'razminSuiteZone',
@@ -288,8 +292,8 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
         throw e;
     }
 
-    results.report(settings.reporters || DEFAULT_REPORTERS);
-    if (settings.exitAndReport !== false)
+    results.report(settings.reporting.reporters || DEFAULT_REPORTERS);
+    if (settings.reporting.exitAndReport !== false)
         results.exitAndReport();
 
     return results;

@@ -1,11 +1,12 @@
-export interface TestExecutionSettingsDef {
+export interface TestExecutionSettingsSpec {
+    contextName? : string;
+
     /**
      * Maximum amount of time (in milliseconds)
      * that tests can run. If they run longer, 
      * they are considered a failure.
      */
     timeout? : number;
-    contextName? : string;
 
     /**
      * Define the order to run the tests.
@@ -21,16 +22,10 @@ export interface TestExecutionSettingsDef {
      * to have a seed chosen at runtime.
      */
     orderSeed? : number;
-
-    /**
-     * If a test runs longer than this time (in milliseconds),
-     * mark it as slow
-     */
-    slowThreshold? : number;
 }
 
-export class TestExecutionSettings implements TestExecutionSettingsDef {
-    public constructor(def? : TestExecutionSettingsDef) {
+export class TestExecutionSettings implements TestExecutionSettingsSpec {
+    public constructor(def? : TestExecutionSettingsSpec) {
         if (def)
             Object.assign(this, def);
     }
@@ -39,9 +34,8 @@ export class TestExecutionSettings implements TestExecutionSettingsDef {
     timeout : number = 10 * 1000;
     order : 'default' | 'random' = 'default';
     orderSeed : number = undefined;
-    slowThreshold : number = 75;
 
-    clone(props : TestExecutionSettingsDef) {
+    clone(props : TestExecutionSettingsSpec) {
         return Object.assign(new TestExecutionSettings(this), props);
     }
 }

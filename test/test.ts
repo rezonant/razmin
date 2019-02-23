@@ -24,8 +24,10 @@ export async function test() {
                         it('will succeed', () => { });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: {
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -46,8 +48,10 @@ export async function test() {
                         it('will also succeed', () => { });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -71,8 +75,10 @@ export async function test() {
                         it('will also succeed', () => { });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -97,8 +103,10 @@ export async function test() {
                         it('will also succeed', () => { });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -124,8 +132,10 @@ export async function test() {
                         it('will also succeed', () => { });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -153,8 +163,10 @@ export async function test() {
                         })
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -186,8 +198,10 @@ export async function test() {
                         })
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -215,8 +229,10 @@ export async function test() {
                         })
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -242,8 +258,10 @@ export async function test() {
                         })
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 if (!results)
@@ -309,8 +327,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 expect(message).to.eq('hello world and such');
@@ -344,8 +364,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 expect(message).to.eq('(ab(cd(ef');
@@ -379,8 +401,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 expect(message).to.eq('ab)cd)ef)');
@@ -417,8 +441,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 expect(message).to.eq('(ab)(cd)(ef)');
@@ -440,8 +466,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
@@ -469,8 +497,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
@@ -509,8 +539,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
@@ -537,8 +569,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
@@ -577,8 +611,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
@@ -602,8 +638,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
@@ -633,8 +671,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
@@ -664,8 +704,10 @@ export async function test() {
                         });
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
@@ -695,8 +737,10 @@ export async function test() {
                         it('will succeed', async () => value += '2');
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
 
                 let result = results.subjectResults.find(x => x.description == 'thing1');
@@ -721,8 +765,10 @@ export async function test() {
                         it('will succeed', async () => value += '2');
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
                 
                 let result = results.subjectResults.find(x => x.description == 'thing1');
@@ -748,8 +794,10 @@ export async function test() {
                         it('will succeed', async () => value += '2');
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
                 
                 let result = results.subjectResults.find(x => x.description == 'thing1');
@@ -775,8 +823,10 @@ export async function test() {
                         it('will succeed', async () => value += '2');
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
                 
                 let result = results.subjectResults.find(x => x.description == 'thing1');
@@ -801,8 +851,10 @@ export async function test() {
                             it(`will succeed ${i}`, async () => value += i);
                     });
                 }, {
-                    reporters: [],
-                    exitAndReport: false
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
                 });
                 
                 let result = results.subjectResults.find(x => x.description == 'thing1');

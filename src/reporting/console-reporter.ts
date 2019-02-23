@@ -13,7 +13,7 @@ export function ConsoleReporter(results : TestSuiteResults) : void {
             continue;
         
         console.log();
-        console.log(colors.yellow(subjectResult.description));
+        console.log(colors.yellow.underline(subjectResult.description));
 
         for (let testResult of subjectResult.tests) {
             total += 1;
@@ -23,8 +23,19 @@ export function ConsoleReporter(results : TestSuiteResults) : void {
             let indicator = blankSpot;
             let color : Function = c => c;
             let printMessage : boolean = false;
-            let durationText = `[${testResult.duration}ms]`;
-            let slow = testResult.duration > results.testSuite.testExecutionSettings.slowThreshold;
+            let durationText = ``;
+            let slowThreshold = results.testSuite.reportingSettings.slowThreshold;
+            let minimumDuration = results.testSuite.reportingSettings.minimumReportedDuration;
+            let fast = testResult.duration < minimumDuration;
+            let slow = testResult.duration > 0.5*slowThreshold;
+            let verySlow = testResult.duration > slowThreshold;
+
+            if (verySlow)
+                durationText = ` ${colors.red.bold(`[${testResult.duration}ms]`)}`;
+            else if (slow)
+                durationText = ` ${colors.yellow.bold(`[${testResult.duration}ms]`)}`;
+            else if (!fast)
+                durationText = ` ${colors.cyan(`[${testResult.duration}ms]`)}`;
 
             if (testResult.passed === 'skip') {
                 skipped += 1;
@@ -35,10 +46,6 @@ export function ConsoleReporter(results : TestSuiteResults) : void {
                 color = colors.green;
                 indicator = '  ✓  ';
                 
-                if (slow) {
-                    color = colors.yellow;
-                }
-                
             } else {
                 failed += 1;
                 color = colors.red;
@@ -47,14 +54,11 @@ export function ConsoleReporter(results : TestSuiteResults) : void {
             }
 
             if (report) {
-                console.log(color(`${indicator}${descriptionConcat(subjectResult.description, testResult.description)}`));
+                console.log(color(`${indicator}${descriptionConcat(subjectResult.description, testResult.description)}${durationText}`));
                 if (printMessage)
                     console.log(`${blankSpot}${testResult.message}`);
             }
 
-            if (slow) {
-                console.log(color(`${blankSpot}Slow test: Took ${durationText}`));
-            }
         }
     }
 
