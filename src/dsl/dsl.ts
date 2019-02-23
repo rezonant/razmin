@@ -208,12 +208,23 @@ export function after(func : Function) {
     subject.addEventListener('after', () => func());
 }
 
-async function itRaw(testDescription : string, func : TestFunction, options? : TestOptions) {
+async function itRaw(testDescription : string, func? : TestFunction, options? : TestOptions) {
     let subject : TestSubject = Zone.current.get('razminSubject');
     if (!subject)
         throw new Error(`You can only call it() from inside a describe() block.`);
     
-    subject.addTest(testDescription, func, options);
+    if (func) {
+        subject.addTest(testDescription, func, options);
+    } else if (!options) {
+        subject.addTest(testDescription, () => {}, { skip: true });
+    } else {
+        subject.addTest(testDescription, () => {
+            throw new Error(
+                `You have passed an undefined test function to it(), ` 
+                + `but you included options! This is probably a mistake.`
+            );
+        }, options);
+    }
 }
 
 itRaw['skip'] = (desc, func) => it(desc, func, { skip: true });
