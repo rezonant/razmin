@@ -1,11 +1,17 @@
 import { TestSubjectResult } from "../subject";
+import { TestSuite } from "./test-suite";
 
 export class TestSuiteResults {
     public constructor(
+        private _testSuite : TestSuite,
         private _subjectResults : TestSubjectResult[]
     ) {
     }
 
+    public get testSuite() {
+        return this._testSuite;
+    }
+    
     public get subjectResults() {
         return this._subjectResults;
     }

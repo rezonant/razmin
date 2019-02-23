@@ -54,7 +54,7 @@ export class TestSuite implements LifecycleContainer {
             results.push(result);
         }
 
-        return new TestSuiteResults(results);
+        return new TestSuiteResults(this, results);
     }
 
     addSubject(subject : TestSubject) {

@@ -1,12 +1,26 @@
+export interface TestResultSpec {
+    description : string;
+    passed : boolean | 'skip';
+    message? : string;
+    hidden? : boolean;
+    duration? : number;
+}
 
 export class TestResult {
     public constructor(
-        private _description : string,
-        private _passed : boolean | 'skip',
-        private _message? : string,
-        private _hidden : boolean = false
+        spec : TestResultSpec
     ) {
+        Object.keys(spec).forEach(key => this[`_${key}`] = spec[key]);
+    }
 
+    private _description : string;
+    private _passed : boolean | 'skip';
+    private _message : string = undefined;
+    private _hidden : boolean = false;
+    private _duration : number = undefined;
+
+    public get duration() {
+        return this._duration;
     }
 
     public get hidden() {

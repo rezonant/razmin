@@ -111,7 +111,12 @@ export class TestSubject implements LifecycleContainer {
             let result : TestResult;
 
             if (only.length > 0 && !only.includes(test)) {
-                result = new TestResult(test.description, 'skip', 'Skipped', true);
+                result = new TestResult({ 
+                    description: test.description, 
+                    passed: 'skip', 
+                    message: 'Skipped', 
+                    hidden: true 
+                });
                 results.push(result);
                 continue;
             }

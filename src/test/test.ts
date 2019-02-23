@@ -147,38 +147,59 @@ export class Test {
     public async run(executionSettings? : TestExecutionSettings, contextName? : string): Promise<TestResult> {
 
         if (this.options.skip)
-            return new TestResult(this._description, 'skip', "Skipped");
+            return new TestResult({ description: this._description, passed: 'skip', message: "Skipped" });
 
         executionSettings = (executionSettings || new TestExecutionSettings()).clone({ contextName });
         
         let timeOutToken = {};
         let timeout = delay(executionSettings.timeout || 10*1000, timeOutToken);
+        let startedAt = Date.now();
+        let finishedAt = undefined;
+        let duration = undefined;
 
         try {
             // Execute the task, but limit our wait time to the 
             // configured timeout, and make sure we can tell if
             // we hit it.
 
-            let timedOut = await Promise.race([
-                timeout, 
-                this.executeInSandbox(executionSettings)
-            ]);
+            let result;
+
+            try {
+                result = await Promise.race([
+                    timeout, 
+                    this.executeInSandbox(executionSettings)
+                ]);
+            } finally {
+                finishedAt = Date.now();
+                duration = finishedAt - startedAt;
+            }
 
             // If the operation timed out, report that.
 
-            if (timedOut == timeOutToken)
-                return new TestResult(this._description, false, "Timed out without completing");
+            if (result === timeOutToken) {
+                return new TestResult({
+                    description: this._description, 
+                    passed: false, 
+                    message: `Timed out (${executionSettings.timeout}ms) without completing`, 
+                    duration
+                });
+            }
         
             // Execution has completed successfully.
             
-            return new TestResult(this._description, true, "Success");
+            return new TestResult({
+                description: this._description, 
+                passed: true, 
+                message: "Success", 
+                duration
+            });
             
         } catch (e) {
             // An exception was caught while handling the test.
             // Produce a result which indicates the error.
 
             if (e instanceof Skip)
-                return new TestResult(this._description, 'skip', 'Skipped');
+                return new TestResult({ description: this._description, passed: 'skip', message: 'Skipped' });
 
             let indent = '     ';
             let message = e.message ? e.message : e+"";
@@ -204,15 +225,18 @@ export class Test {
             if (e.constructor.name == "AssertionError")
                 showStack = false;
 
-            return new TestResult(this._description, false, 
-                `${indent}${colors.red('×')} ${message}\n` 
-                + (stackLine? 
-                    `       ${colors.gray('at')} ${colors.white(stackLine)}`
-                    : '')
-                + (showStack? 
-                    `\n${colors.gray(deepStackLines.join("\n"))}`
-                    : '')
-            );
+            return new TestResult({
+                description: this._description, 
+                passed: false, 
+                message: `${indent}${colors.red('×')} ${message}\n` 
+                    + (stackLine? 
+                        `       ${colors.gray('at')} ${colors.white(stackLine)}`
+                        : '')
+                    + (showStack? 
+                        `\n${colors.gray(deepStackLines.join("\n"))}`
+                        : ''), 
+                duration
+            });
         } finally {
             timeout.cancel();
         }

@@ -1,5 +1,6 @@
 import { TestSuiteResults } from "../suite";
 import * as colors from 'colors/safe';
+import { descriptionConcat } from "../util";
 
 export function ConsoleReporter(results : TestSuiteResults) : void {
     let total = 0;
@@ -18,21 +19,41 @@ export function ConsoleReporter(results : TestSuiteResults) : void {
             total += 1;
 
             let report = !testResult.hidden;
+            let blankSpot = '     ';
+            let indicator = blankSpot;
+            let color : Function = c => c;
+            let printMessage : boolean = false;
+            let durationText = `[${testResult.duration}ms]`;
+            let slow = testResult.duration > results.testSuite.testExecutionSettings.slowThreshold;
 
             if (testResult.passed === 'skip') {
                 skipped += 1;
-                if (report)
-                    console.log(colors.yellow(` (S) ${subjectResult.description} ${testResult.description}`));
+                color = colors.yellow;
+                indicator = ' (S) ';
             } else if (testResult.passed) {
                 passed += 1;
-                if (report) 
-                    console.log(colors.green(`  ✓  ${subjectResult.description} ${testResult.description}`));
+                color = colors.green;
+                indicator = '  ✓  ';
+                
+                if (slow) {
+                    color = colors.yellow;
+                }
+                
             } else {
                 failed += 1;
-                if (report) {
-                    console.log(colors.red( `  ✗  ${subjectResult.description} ${testResult.description}`));
-                    console.log(            `     ${testResult.message}`);
-                }
+                color = colors.red;
+                indicator = '  ✗  ';
+                printMessage = true;
+            }
+
+            if (report) {
+                console.log(color(`${indicator}${descriptionConcat(subjectResult.description, testResult.description)}`));
+                if (printMessage)
+                    console.log(`${blankSpot}${testResult.message}`);
+            }
+
+            if (slow) {
+                console.log(color(`${blankSpot}Slow test: Took ${durationText}`));
             }
         }
     }
