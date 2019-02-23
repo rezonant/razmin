@@ -160,7 +160,7 @@ export class Test {
             // we hit it.
 
             let timedOut = await Promise.race([
-                timeout.completed, 
+                timeout, 
                 this.executeInSandbox(executionSettings)
             ]);
 

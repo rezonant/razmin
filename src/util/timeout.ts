@@ -1,18 +1,13 @@
 
-export interface Delay<T> {
+export interface Delay<T> extends Promise<T> {
     cancel();
-    completed : Promise<T>;
 }
 
 export function delay(ms : number, value? : any): Delay<any>
 export function delay<T>(ms : number, value? : T): Delay<T> {
     let timeout;
-    let completed = new Promise<T>((resolve, reject) => {
-        timeout = setTimeout(() => resolve(value), ms);
-    })
-
-    return {
-        cancel: () => clearTimeout(timeout),
-        completed
-    };
+    return Object.assign(
+        new Promise<T>(resolve => timeout = setTimeout(() => resolve(value), ms)),
+        { cancel: () => clearTimeout(timeout) }
+    );
 }
