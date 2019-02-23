@@ -21,6 +21,12 @@ export interface TestExecutionSettingsDef {
      * to have a seed chosen at runtime.
      */
     orderSeed? : number;
+
+    /**
+     * If a test runs longer than this time (in milliseconds),
+     * mark it as slow
+     */
+    slowThreshold? : number;
 }
 
 export class TestExecutionSettings implements TestExecutionSettingsDef {
@@ -33,6 +39,7 @@ export class TestExecutionSettings implements TestExecutionSettingsDef {
     timeout : number = 10 * 1000;
     order : 'default' | 'random' = 'default';
     orderSeed : number = undefined;
+    slowThreshold : number = 75;
 
     clone(props : TestExecutionSettingsDef) {
         return Object.assign(new TestExecutionSettings(this), props);
