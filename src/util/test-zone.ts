@@ -1,15 +1,15 @@
 import { Observable, Subject } from 'rxjs';
 
 export class TestZone {
-    public constructor(name : string) {
+    public constructor(name : string, properties : any = {}) {
         let self = this;
 
         this._outside = Zone.current;
         this._zone = Zone.current.fork({
             name,
-            properties: {
+            properties: Object.assign({
                 isTestCoreZone: true
-            },
+            }, properties),
 
             onInvoke(delegate, current, target, callback, applyThis, applyArgs, source) {
                 return self.innerInvoke(() => delegate.invoke(target, callback, applyThis, applyArgs, source));

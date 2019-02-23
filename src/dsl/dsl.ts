@@ -19,7 +19,7 @@ import * as callsites from 'callsites';
 import * as path from 'path';
 import { TestSubjectBuilder } from "./test-subject-builder";
 import { TestFactory } from "./test-factory";
-import { LifecycleContainer } from "../util";
+import { LifecycleContainer, TestZone } from "../util";
 import { TestBuilder } from "./test-builder";
 import { ConsoleReporter } from "../reporting";
 
@@ -168,7 +168,7 @@ async function describeRaw(description : string, testFactory : TestFactory, opti
     await new Promise((resolve, reject) => {
         zone.run(async () => {
             try { 
-                testFactory(it);
+                await testFactory(it);
                 resolve();
             } catch (e) {
                 console.error(`Caught error while building test:`);
@@ -248,24 +248,30 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSetti
     } else {
         testSuite = topLevelSuite = new TestSuite(new TestExecutionSettings(settings.testExecutionSettings));
         top = true;
-        zone = Zone.current.fork({
+        zone = zone.fork({
             name: 'razminSuiteZone',
             properties: {
                 razminTestSuite: testSuite
-            },
+            }
         });
     }
-    
-    await new Promise((resolve, reject) => {
-        zone.run(async () => {
-            try { 
-                await builder(describe);
-                resolve();
-            } catch (e) {
-                console.error(`Caught error while building test:`);
-                console.error(e);
-                reject(e);
-            }
+
+    await zone.run(async () => {
+        await new Promise<void>((resolve, reject) => {
+            // Construct a new zone to track async activity in the suite
+            
+            let testZone : TestZone = new TestZone('razminSuiteTracker');
+            testZone.onError.subscribe(err => reject(err));
+            testZone.onStable.subscribe(() => resolve());
+            testZone.zone.run(async () => {
+                try { 
+                    await builder(describe);
+                } catch (e) {
+                    console.error(`Caught error while building test:`);
+                    console.error(e);
+                    reject(e);
+                }
+            });
         });
     });
 

@@ -681,6 +681,85 @@ export async function test() {
                 expect(result.passed).to.eq(false);
                 expect(value).to.eq('1');
             }
+        ],
+        [
+            'suite() should await before continuing',
+            {},
+            async () => {
+                let message = '';
+                let value = '';
+                let results = await suite(async describe => {
+                    await delay(100);
+                    describe('thing1', it => {
+                        it('will succeed', async () => value += '1');
+                        it('will succeed', async () => value += '2');
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                let result = results.subjectResults.find(x => x.description == 'thing1');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.tests.length).to.eq(2);
+                
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('12');
+            }
+        ],
+        [
+            'describe() should await before continuing (double await)',
+            {},
+            async () => {
+                let message = '';
+                let value = '';
+                let results = await suite(async describe => {
+                    await describe('thing1', async it => {
+                        await delay(100);
+                        it('will succeed', async () => value += '1');
+                        it('will succeed', async () => value += '2');
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+                
+                let result = results.subjectResults.find(x => x.description == 'thing1');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.tests.length).to.eq(2);
+                
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('12');
+            }
+        ],
+        [
+            'suite() should wait for it\'s zone to resolve before continuing',
+            { skip: false },
+            async () => {
+                let message = '';
+                let value = '';
+
+                let results = await suite(async describe => {
+                    describe('thing1', async it => {
+                        await delay(100);
+                        it('will succeed', async () => value += '1');
+                        it('will succeed', async () => value += '2');
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+                
+                let result = results.subjectResults.find(x => x.description == 'thing1');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.tests.length).to.eq(2);
+                
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('12');
+            }
         ]
     ];
 
