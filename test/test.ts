@@ -1009,7 +1009,7 @@ async function runTests() {
                 setTimeout(() => {
                     if (value !== echoedValue)
                         throw new Error('Zone inhibited return value of task');
-                }, 100);
+                }, 10);
 
             });
             it('should not fail a test for an unrelated peer exception', async () => {
@@ -1120,13 +1120,15 @@ async function runTests() {
                 let date = new Date();
                 let test = new Test('test', () => {
                     setTimeout(() => {
-                    }, 1000);
+                    }, 60);
                 });
 
-                let result = await test.run(new TestExecutionSettings({ timeout: 100 }), "This Test!");
+                let result = await test.run(new TestExecutionSettings({ timeout: 30 }), "Timeout-Failure-Test");
 
                 expect(result.passed, 'the example test should fail')
                     .to.be.false;
+
+                expect(result.duration).to.be.lessThan(50);
 
                 expect(result.message, 'the failure message should mention a timeout')
                     .to.contain('Timed out');
@@ -1137,28 +1139,14 @@ async function runTests() {
                 let date = new Date();
                 let test = new Test('test', () => {
                     setTimeout(() => {
-                    }, 100);
+                    }, 30);
                 });
 
                 let result = await test.run(new TestExecutionSettings({ timeout: 1000 }), "This Test!");
 
                 expect(result.passed, 'the example test should pass')
                     .to.be.true;
-
-            });
-            it('should provide a reasonable message upon success', async () => {
-                let success = false;
-                let date = new Date();
-                let test = new Test('test', () => {
-                    setTimeout(() => {
-                    }, 100);
-                });
-
-                let result = await test.run(new TestExecutionSettings({ timeout: 1000 }), "This Test!");
-
-                expect(result.passed, 'the example test should pass')
-                    .to.be.true;
-
+                
                 expect(result.message || '', 'the message should not be empty')
                     .to.not.be.empty;
             });
