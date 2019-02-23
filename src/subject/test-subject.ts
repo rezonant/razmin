@@ -3,7 +3,7 @@ import { TestFunction } from "../test";
 import { TestSubjectResult } from "../subject";
 import { TestResult } from "../test";
 import { TestExecutionSettings } from "../core";
-import { LifecycleContainer } from "../util";
+import { LifecycleContainer, descriptionConcat } from "../util";
 
 import MersenneTwister = require('mersenne-twister');
 
@@ -67,7 +67,7 @@ export class TestSubject implements LifecycleContainer {
      * @param testExecutionSettings 
      */
     private runTest(test : Test, testExecutionSettings : TestExecutionSettings) {
-        return test.run(testExecutionSettings, `${this._description} ${test.description}`);
+        return test.run(testExecutionSettings, `${descriptionConcat(this._description, test.description)}`);
     }
 
     /**

@@ -19,7 +19,7 @@ import * as callsites from 'callsites';
 import * as path from 'path';
 import { TestSubjectBuilder } from "./test-subject-builder";
 import { TestFactory } from "./test-factory";
-import { LifecycleContainer, TestZone } from "../util";
+import { LifecycleContainer, TestZone, descriptionConcat } from "../util";
 import { TestBuilder } from "./test-builder";
 import { ConsoleReporter } from "../reporting";
 
@@ -141,12 +141,8 @@ async function describeRaw(description : string, testFactory : TestFactory, opti
     }
 
     let parentSubject : TestSubject = Zone.current.get('razminSubject');
-    if (parentSubject) {
-        if (/^[^A-Za-z0-9].*/.test(description))
-            description = `${parentSubject.description}${description}`;
-        else
-            description = `${parentSubject.description} ${description}`;
-    }
+    if (parentSubject)
+        description = descriptionConcat(parentSubject.description, description);
 
     let parent : LifecycleContainer = Zone.current.get('razminLifecycleContainer');;
     if (!parent)
