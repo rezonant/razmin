@@ -6,6 +6,8 @@ import { TestFunction, DoneCallback, TestOptions } from "./test-function";
 import { delay, TestZone } from '../util';
 import { TestExecutionSettings } from "../core";
 
+export class Skip {}
+
 /**
  * Whether to enable experimental Node.js promise rejection detection
  * using `process.on('unhandledRejection')`.
@@ -174,6 +176,9 @@ export class Test {
         } catch (e) {
             // An exception was caught while handling the test.
             // Produce a result which indicates the error.
+
+            if (e instanceof Skip)
+                return new TestResult(this._description, 'skip', 'Skipped');
 
             let indent = '     ';
             let message = e.message ? e.message : e+"";

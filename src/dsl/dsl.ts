@@ -9,7 +9,7 @@ import { TestSuite } from "../suite";
 import { Reporter } from '../reporting';
 import { TestExecutionSettings, TestExecutionSettingsDef } from "../core";
 import { TestSubject } from "../subject";
-import { TestFunction, TestOptions } from "../test";
+import { TestFunction, TestOptions, Skip } from "../test";
 import { TestSuiteResults } from "../suite";
 
 import { TestSuiteFactory } from "./test-suite-factory";
@@ -189,6 +189,10 @@ describeRaw['only'] = (desc, fac, opts?) => {
 };
 
 export const describe : TestSubjectBuilder = describeRaw as any;
+
+export function skip() {
+    throw new Skip();
+}
 
 export function before(func : Function) {
     let subject : TestSubject = Zone.current.get('razminSubject');

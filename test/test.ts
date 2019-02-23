@@ -1,4 +1,4 @@
-import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach, afterEach, before, after } from '../src';
+import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach, afterEach, before, after, skip } from '../src';
 import { delay } from '../src/util';
 import { expect } from 'chai';
 import * as colors from 'colors/safe';
@@ -586,6 +586,37 @@ export async function test() {
 
                 expect(result.passed).to.eq(true);
                 expect(value).to.eq('1A2A3Aa4Aa5Aa6Aa');
+            }
+        ],
+        [
+            'skip() should cause a test to be skipped',
+            {},
+            async () => {
+                let message = '';
+                let value = '';
+                let results = await suite(describe => {
+                    describe('thing1', () => {
+                        describe('should do a thing', it => {
+                            it('will skip', async () => skip());
+                            it('will succeed', async () => value += '1');
+                        });
+                    });
+                }, {
+                    reporters: [],
+                    exitAndReport: false
+                });
+
+                let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
+                expect(result).to.not.eq(undefined);
+
+                let skippedTest = result.tests.find(x => x.description == 'will skip');
+                let successTest = result.tests.find(x => x.description == 'will succeed');
+                
+                expect(skippedTest.passed).to.equal('skip');
+                expect(successTest.passed).to.be.true;
+
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('1');
             }
         ]
     ];

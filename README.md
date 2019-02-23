@@ -157,7 +157,7 @@ suite(() => {
 ### Skipping Tests
 
 To skip a test, change the `it()` block to be `it.skip()`. This serves the same purpose as Jasmine's 
-`xit()` variant.
+`xit()` variant. You can also import the `skip()` function and call it in your test to skip your test dynamically.
 
 ### Running a single test
 
