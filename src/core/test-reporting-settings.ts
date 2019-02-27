@@ -3,6 +3,10 @@ import { Reporter } from "../reporting";
 export interface TestReportingSettingsSpec {
     reporters? : Reporter[];
     
+    /**
+     * Set to true to have Razmin exit the process once all tests are complete,
+     * with a zero exit code for success and a one exit code for failure.
+     */
     exitAndReport? : boolean;
 
     /**
