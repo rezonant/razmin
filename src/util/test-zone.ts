@@ -1,3 +1,12 @@
+/**
+ * Copyright Google Inc. All Rights Reserved.
+ * Copyright William Lahti
+ * 
+ * Derived from Angular's NgZone
+ * https://github.com/angular/angular/blob/6.0.0/packages/core/src/zone/ng_zone.ts
+ * 
+ */
+
 import { Observable, Subject } from 'rxjs';
 
 export class TestZone {
@@ -21,7 +30,7 @@ export class TestZone {
 
             onHasTask(delegate, current, target, hasTaskState) {
                 delegate.hasTask(target, hasTaskState);
-                
+
                 if (hasTaskState.change == 'microTask') {
                     self._hasPendingMicrotasks = hasTaskState.microTask;
                 } else if (hasTaskState.change == 'macroTask') {
