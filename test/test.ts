@@ -7,6 +7,7 @@ import { map, catchError } from 'rxjs/operators';
 
 interface SanityTestOptions {
     skip?: boolean;
+    only?: boolean;
 }
 
 type SanityTestDefinition = [ string, SanityTestOptions, Function ];
@@ -871,6 +872,10 @@ export async function test() {
 
     let passedCount = 0;
     let failedCount = 0;
+    
+    if (tests.filter(x => x[1].only).length > 0)
+        tests = tests.filter(x => x[1].only);
+
     for (let x of tests) {
         let [ name, options, test ] = x;
 
