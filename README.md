@@ -218,6 +218,8 @@ You can define your own reporters. When reporters are specified, Razmin will not
 terminal (even if an empty set of reporters is provided). Use the `reporters` option to pass the set 
 of reporters you'd like to use from your root test suite.
 
+The default console reporter is exported as `ConsoleReporter`. That reporter outputs all test results in a long-style format. See `ConsoleDotsReporter` for a shorter test output, where each passed test shows as a dot (.), skipped tests show as an "S", and failed tests show as "F".
+
 ### Exit and Report
 
 By default when you execute a suite, either by executing your suite or using `suite().run()`, Razmin 
