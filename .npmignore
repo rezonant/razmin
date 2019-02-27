@@ -4,3 +4,7 @@ src/
 dist/test/
 dist/example*
 !core
+example.ts
+.circleci/
+*.tgz
+*.md
