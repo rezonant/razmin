@@ -16,7 +16,7 @@ export class ConsoleReporter implements Reporter {
                 continue;
             
             console.log();
-            console.log(colors.yellow.underline(subjectResult.description));
+            console.log(colors.yellow(colors.underline(subjectResult.description)));
     
             for (let testResult of subjectResult.tests) {
                 total += 1;
@@ -34,9 +34,9 @@ export class ConsoleReporter implements Reporter {
                 let verySlow = testResult.duration > slowThreshold;
     
                 if (verySlow)
-                    durationText = ` ${colors.red.bold(`[${testResult.duration}ms]`)}`;
+                    durationText = ` ${colors.red(colors.bold(`[${testResult.duration}ms]`))}`;
                 else if (slow)
-                    durationText = ` ${colors.yellow.bold(`[${testResult.duration}ms]`)}`;
+                    durationText = ` ${colors.yellow(colors.bold(`[${testResult.duration}ms]`))}`;
                 else if (!fast)
                     durationText = ` ${colors.cyan(`[${testResult.duration}ms]`)}`;
     
