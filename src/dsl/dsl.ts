@@ -24,15 +24,15 @@ import { TestBuilder } from "./test-builder";
 import { ConsoleReporter } from "../reporting";
 import { TestReportingSettingsSpec, TestReportingSettings } from "../core/test-reporting-settings";
 
-const DEFAULT_REPORTERS = [ ConsoleReporter ];
+const DEFAULT_REPORTERS : Reporter[] = [ new ConsoleReporter() ];
 
 export class FluentSuite {
-    constructor(settings : DslSettings = {}) {
+    constructor(settings : SuiteSettings = {}) {
         this._settings = settings;
         this.suite = new TestSuite(new TestExecutionSettings(settings.execution));
     }
 
-    private _settings : DslSettings;
+    private _settings : SuiteSettings;
     readonly suite : TestSuite;
 
     get settings() {
@@ -47,7 +47,7 @@ export class FluentSuite {
         return this;
     }
 
-    withOptions(settings : DslSettings): this {
+    withOptions(settings : SuiteSettings): this {
         if (!settings)
             throw new Error(`You must pass an object to withOptions()`);
         
@@ -86,16 +86,19 @@ export class FluentSuite {
     }
 }
 
-export interface DslSettings {
+/**
+ * Specify settings for this test suite.
+ */
+export interface SuiteSettings {
     execution? : TestExecutionSettingsSpec;
     reporting? : TestReportingSettingsSpec;
 }
 
-export async function runSuite(paths : string[], options? : DslSettings): Promise<TestSuiteResults> {
+export async function runSuite(paths : string[], options? : SuiteSettings): Promise<TestSuiteResults> {
     return await (await buildSuite(paths, options)).run();
 }
 
-export async function buildSuite(paths : string[], options? : DslSettings, testSuite? : TestSuite): Promise<TestSuite> {
+export async function buildSuite(paths : string[], options? : SuiteSettings, testSuite? : TestSuite): Promise<TestSuite> {
     if (!options) 
         options = {};
     
@@ -227,7 +230,7 @@ itRaw['skip'] = (desc, func) => it(desc, func, { skip: true });
 itRaw['only'] = (desc, func) => it(desc, func, { only: true });
 export const it : TestBuilder = itRaw as any;
 
-async function suiteDeclaration(builder : TestSuiteFactory, settings? : DslSettings): Promise<TestSuiteResults>
+async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSettings): Promise<TestSuiteResults>
 {
     if (!settings)
         settings = {};
@@ -368,7 +371,7 @@ function argsMatch(args : any[], patterns : string[]) {
  * @param builder 
  */
 export function suite() : FluentSuite;
-export async function suite(builder : TestSuiteFactory, settings?: DslSettings): Promise<TestSuiteResults> 
+export async function suite(builder : TestSuiteFactory, settings?: SuiteSettings): Promise<TestSuiteResults> 
 export function suite(...args): any
 {
     if (argsMatch(args, ['object?']))

@@ -1,5 +1,6 @@
 import { TestSubjectResult } from "../subject";
 import { TestSuite } from "./test-suite";
+import { Reporter } from "../reporting";
 
 export class TestSuiteResults {
     public constructor(
@@ -28,8 +29,8 @@ export class TestSuiteResults {
         }
     }
 
-    public report(reporters? : Function[]) {
+    public report(reporters? : Reporter[]) {
         if (reporters)
-            reporters.forEach(reporter => reporter(this));
+            reporters.forEach(reporter => reporter.onSuiteFinished(this));
     }
 }

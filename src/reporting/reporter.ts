@@ -1,5 +1,8 @@
 import { TestSuiteResults } from "../suite";
+import { Test, TestResult } from "../test";
 
 export interface Reporter {
-    (results : TestSuiteResults) : void;
+    onTestStarted?(test : Test);
+    onTestFinished?(test : Test, result : TestResult);
+    onSuiteFinished?(results : TestSuiteResults);
 }
