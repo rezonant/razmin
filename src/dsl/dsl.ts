@@ -74,14 +74,6 @@ export class FluentSuite {
     }
 
     async run() {
-        let results = await this.runForResults();
-        
-        results.report(this.settings.reporting.reporters || DEFAULT_REPORTERS);
-        if (this.settings.reporting.exitAndReport !== false)
-            results.exitAndReport();
-    }
-
-    async runForResults(): Promise<TestSuiteResults> {
         return await this.suite.run();
     }
 }
@@ -106,8 +98,20 @@ export async function buildSuite(paths : string[], options? : SuiteSettings, tes
 
     let top = false;
 
-    if (!testSuite)
-        testSuite = new TestSuite(new TestExecutionSettings(options.execution), new TestReportingSettings(options.reporting));
+    if (!testSuite) {
+        testSuite = new TestSuite(
+            new TestExecutionSettings(options.execution), 
+            new TestReportingSettings(
+                Object.assign(
+                    {
+                        reporters: DEFAULT_REPORTERS,
+                        exitAndReport: true
+                    }, 
+                    options.reporting
+                )
+            )
+        );
+    }
 
     let zone = Zone.current.fork({
         name: 'razminSuiteZone',
@@ -249,7 +253,16 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSet
     if (topLevelSuite) {
         testSuite = topLevelSuite;
     } else {
-        testSuite = topLevelSuite = new TestSuite(new TestExecutionSettings(settings.execution), new TestReportingSettings(settings.reporting));
+        testSuite = topLevelSuite = new TestSuite(
+            new TestExecutionSettings(settings.execution), 
+            new TestReportingSettings(Object.assign(
+                {
+                    reporters: DEFAULT_REPORTERS,
+                    exitAndReport: true
+                }, 
+                settings.reporting
+            ))
+        );
         top = true;
         zone = zone.fork({
             name: 'razminSuiteZone',
@@ -294,10 +307,6 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSet
         console.error(e);
         throw e;
     }
-
-    results.report(settings.reporting.reporters || DEFAULT_REPORTERS);
-    if (settings.reporting.exitAndReport !== false)
-        results.exitAndReport();
 
     return results;
 }

@@ -6,6 +6,7 @@ import { TestExecutionSettings } from "../core";
 import { LifecycleContainer, descriptionConcat } from "../util";
 
 import MersenneTwister = require('mersenne-twister');
+import { Reporter } from "../reporting";
 
 /**
  * Represents a set of unit tests built around a single object under test ("subject")
@@ -74,10 +75,13 @@ export class TestSubject implements LifecycleContainer {
      * Run all tests that deal with this test subject.
      * @param testExecutionSettings 
      */
-    public async run(testExecutionSettings? : TestExecutionSettings): Promise<TestSubjectResult> {
+    public async run(reporters? : Reporter[], testExecutionSettings? : TestExecutionSettings): Promise<TestSubjectResult> {
         let results : TestResult[] = [];
         let tests : Test[] = this._tests;
         let only : Test[] = [];
+
+        if (!reporters)
+            reporters = [];
 
         for (let test of tests) {
             if (test.options.only)
@@ -121,9 +125,19 @@ export class TestSubject implements LifecycleContainer {
                 continue;
             }
 
+            for (let reporter of reporters) {
+                if (reporter.onTestStarted)
+                    reporter.onTestStarted(this._parent as any, this, test);
+            }
+            
             await this.fireEvent('before');
             result = await this.runTest(test, testExecutionSettings);
             await this.fireEvent('after');
+
+            for (let reporter of reporters) {
+                if (reporter.onTestFinished)
+                    reporter.onTestFinished(this._parent as any, this, test, result);
+            }
 
             results.push(result);
         }

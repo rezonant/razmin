@@ -48,6 +48,10 @@ export class TestSuite implements LifecycleContainer {
         return this._reportingSettings;
     }
 
+    get reporters() {
+        return this._reportingSettings.reporters || [];
+    }
+
     public set reportingSettings(value : TestReportingSettings) {
         this._reportingSettings = value;
     }
@@ -57,13 +61,40 @@ export class TestSuite implements LifecycleContainer {
     }
 
     async run(): Promise<TestSuiteResults> {
+
+        let originalReporters = this.reporters.slice(0);
+
+        for (let reporter of this.reporters) {
+            if (reporter.onSuiteStarted)
+                reporter.onSuiteStarted(this);
+        }
+
         let results : TestSubjectResult[] = [];
         for (let subject of this._subjects) {
-            let result = await subject.run(this.executionSettings);
+            let result = await subject.run(this.reporters, this.executionSettings);
             results.push(result);
         }
 
-        return new TestSuiteResults(this, results);
+        let suiteResults = new TestSuiteResults(this, results);
+        
+        if (originalReporters.length != this.reporters.length) {
+            debugger;
+        }
+        
+        for (let reporter of this.reporters) {
+            if (reporter.onSuiteFinished)
+                reporter.onSuiteFinished(this, suiteResults);
+        }
+
+        if (this._reportingSettings.exitAndReport !== false) {
+            if (!suiteResults.passed) {
+                process.exit(1);
+            } else {
+                process.exit(0);
+            }
+        }
+
+        return suiteResults;
     }
 
     addSubject(subject : TestSubject) {

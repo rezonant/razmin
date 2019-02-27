@@ -21,16 +21,8 @@ export class TestSuiteResults {
         return this._subjectResults.map(x => x.passed).indexOf(false) < 0;
     }
 
-    public exitAndReport() {
-        if (!this.passed) {
-            process.exit(1);
-        } else {
-            process.exit(0);
-        }
-    }
-
     public report(reporters? : Reporter[]) {
         if (reporters)
-            reporters.forEach(reporter => reporter.onSuiteFinished(this));
+            reporters.forEach(reporter => reporter.onSuiteFinished(this.testSuite, this));
     }
 }

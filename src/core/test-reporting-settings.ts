@@ -27,7 +27,9 @@ export class TestReportingSettings implements TestReportingSettingsSpec {
         if (def)
             Object.assign(this, def);
     }
-    
+
+    reporters : Reporter[] = [ ];
+    exitAndReport : boolean = false;
     slowThreshold : number = 75;
     minimumReportedDuration : number = 15;
 

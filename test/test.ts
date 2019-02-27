@@ -1,9 +1,10 @@
-import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach, afterEach, before, after, skip } from '../src';
+import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach, afterEach, before, after, skip, TestSubjectResult } from '../src';
 import { delay } from '../src/util';
 import { expect } from 'chai';
 import * as colors from 'colors/safe';
 import { Observable, of, interval, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { TestReportingSettings } from '../src/core/test-reporting-settings';
 
 interface SanityTestOptions {
     skip?: boolean;
@@ -996,11 +997,11 @@ async function runTests() {
     return await suite(describe => {
         describe('TestSuite', it => {
             it('should run its suites', async () => {
-                let suite = new TestSuite();
+                let suite = new TestSuite(undefined, new TestReportingSettings({ reporters: [] }));
                 let count = 0;
     
                 for (let i = 0; i < 10; ++i)
-                    suite.addSubject(<any>{ run() { count += 1; } });
+                    suite.addSubject(<any>{ run() { count += 1; return new TestSubjectResult('test', []) } });
     
                 await suite.run();
 
