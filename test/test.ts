@@ -276,7 +276,7 @@ export async function test() {
             }
         ],
         [
-            'should not accept a suite that throws a delayed exception in a subzone',
+            'should not accept a suite that throws a delayed exception in a subzone while waiting for main zone',
             { },
             async () => {
                 let results = await suite(describe => {
@@ -313,6 +313,48 @@ export async function test() {
                 expect(results, 'Received invalid results from suite()').to.exist
                 expect(results.passed, 'Should not accept a suite that throws exceptions').to.be.false
                 expect(results.subjectResults[0].tests[0].message).to.include('INNER_ERROR');
+            }
+        ],
+        [
+            'should not accept a suite that throws a delayed exception in a second subzone',
+            {},
+            async () => {
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will succeed', () => { });
+                        it('will fail', () => { 
+                            let zone = Zone.current.fork({ name: 'RazminTestsDummyZone' });
+                            let zone2 = Zone.current.fork({ name: 'RazminTestsDummyZone2' });
+
+                            // Schedule a successful callback in 10ms and 
+                            // a failing callback in 11ms (later) in another
+                            // zone.
+
+                            zone.run(() => {
+                                setTimeout(() => {}, 10);
+                            });
+                            
+                            zone2.run(() => {
+                                setTimeout(() => {
+                                    throw new Error('This is an error'); 
+                                }, 20);
+                            })
+                            
+                        })
+                        it('will also succeed', () => { });
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Should not accept a suite that throws exceptions`);
             }
         ],
         [

@@ -32,9 +32,23 @@ export class TestZone {
                 delegate.hasTask(target, hasTaskState);
 
                 if (hasTaskState.change == 'microTask') {
+                    if (hasTaskState.microTask) {
+                        if (!self._zonesWithPendingMicrotasks.includes(target))
+                            self._zonesWithPendingMicrotasks.push(target);
+                    } else {
+                        self._zonesWithPendingMicrotasks = self._zonesWithPendingMicrotasks.filter(x => x !== target);
+                    }
+
                     self._hasPendingMicrotasks = hasTaskState.microTask;
                 } else if (hasTaskState.change == 'macroTask') {
                     self._hasPendingMacrotasks = hasTaskState.macroTask;
+                    
+                    if (hasTaskState.macroTask) {
+                        if (!self._zonesWithPendingMacrotasks.includes(target))
+                            self._zonesWithPendingMacrotasks.push(target);
+                    } else {
+                        self._zonesWithPendingMacrotasks = self._zonesWithPendingMacrotasks.filter(x => x !== target);
+                    }
                 }
 
                 self.checkStable();
@@ -46,6 +60,9 @@ export class TestZone {
             }
         });
     }
+
+    private _zonesWithPendingMicrotasks : Zone[] = [];
+    private _zonesWithPendingMacrotasks : Zone[] = [];
 
     private _outside : Zone;
     private _nesting : number = 0;
@@ -77,6 +94,9 @@ export class TestZone {
         if (this._nesting > 0 || this._hasPendingMacrotasks || this._hasPendingMicrotasks || this._isStable)
             return;
 
+        if (this._zonesWithPendingMicrotasks.length > 0 || this._zonesWithPendingMacrotasks.length > 0)
+            return;
+        
         try {
             this._nesting++;
             this._onMicrotaskEmpty.next(null);
