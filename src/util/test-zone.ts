@@ -21,10 +21,7 @@ export class TestZone {
 
             onHasTask(delegate, current, target, hasTaskState) {
                 delegate.hasTask(target, hasTaskState);
-
-                if (current !== target) 
-                    return;
-
+                
                 if (hasTaskState.change == 'microTask') {
                     self._hasPendingMicrotasks = hasTaskState.microTask;
                 } else if (hasTaskState.change == 'macroTask') {
@@ -35,11 +32,6 @@ export class TestZone {
             },
             
             onHandleError(delegate, current, target, error) {
-                delegate.handleError(target, error);
-
-                if (current !== target)
-                    return;
-                    
                 self.runOutside(() => self._onError.next(error));
                 return false;
             }

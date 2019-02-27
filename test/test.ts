@@ -244,6 +244,77 @@ export async function test() {
             }
         ],
         [
+            'should not accept a suite that throws an exception in a subzone',
+            {},
+            async () => {
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will succeed', () => { });
+                        it('will fail', () => { 
+                            let zone = Zone.current.fork({ name: 'RazminTestsDummyZone' });
+
+                            zone.run(() => {
+                                throw new Error('This is an error'); 
+                            })
+                            
+                        })
+                        it('will also succeed', () => { });
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Should not accept a suite that throws exceptions`);
+            }
+        ],
+        [
+            'should not accept a suite that throws a delayed exception in a subzone',
+            { },
+            async () => {
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will fail', () => { 
+                            let zone = Zone.current.fork({ 
+                                name: 'RazminTestsDummyZone',
+                                properties: {
+                                    testProperty: 123321
+                                }
+                            });
+
+                            setTimeout(() => {}, 20);
+
+                            zone.run(() => {
+                                let testPropVal = Zone.current.get('testProperty');
+                                if (testPropVal !== 123321)
+                                    throw new Error(`A property defined on a zone forked from TestZone is not available inside that zone (Razmin broke zone-local properties)`);
+                                
+                                setTimeout(() => {
+                                    throw new Error('INNER_ERROR'); 
+                                }, 10);
+                            })
+                            
+                        })
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+
+                expect(results, 'Received invalid results from suite()').to.exist
+                expect(results.passed, 'Should not accept a suite that throws exceptions').to.be.false
+                expect(results.subjectResults[0].tests[0].message).to.include('INNER_ERROR');
+            }
+        ],
+        [
             'nested suites should merge',
             {},
             async () => {
