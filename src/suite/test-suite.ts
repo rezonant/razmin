@@ -62,8 +62,6 @@ export class TestSuite implements LifecycleContainer {
 
     async run(): Promise<TestSuiteResults> {
 
-        let originalReporters = this.reporters.slice(0);
-
         for (let reporter of this.reporters) {
             if (reporter.onSuiteStarted)
                 reporter.onSuiteStarted(this);
@@ -76,10 +74,6 @@ export class TestSuite implements LifecycleContainer {
         }
 
         let suiteResults = new TestSuiteResults(this, results);
-        
-        if (originalReporters.length != this.reporters.length) {
-            debugger;
-        }
         
         for (let reporter of this.reporters) {
             if (reporter.onSuiteFinished)
