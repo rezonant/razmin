@@ -28,8 +28,13 @@ const DEFAULT_REPORTERS : Reporter[] = [ new ConsoleReporter() ];
 
 export class FluentSuite {
     constructor(settings : SuiteSettings = {}) {
-        this._settings = settings;
-        this.suite = new TestSuite(new TestExecutionSettings(settings.execution));
+        this._settings = Object.assign(<SuiteSettings>{
+            reporting: {
+                reporters: DEFAULT_REPORTERS,
+                exitAndReport: true
+            }
+        }, settings);
+        this.suite = new TestSuite(new TestExecutionSettings(settings.execution), new TestReportingSettings(settings.reporting));
     }
 
     private _settings : SuiteSettings;
@@ -52,9 +57,13 @@ export class FluentSuite {
             throw new Error(`You must pass an object to withOptions()`);
         
         this._settings = settings;
+
         if (settings.execution)
             this.suite.executionSettings = new TestExecutionSettings(settings.execution);
 
+        if (settings.reporting)
+            this.suite.reportingSettings = new TestReportingSettings(settings.reporting);
+        
         return this;
     }
 
