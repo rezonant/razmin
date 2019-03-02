@@ -24,17 +24,26 @@ import { TestBuilder } from "./test-builder";
 import { ConsoleReporter } from "../reporting";
 import { TestReportingSettingsSpec, TestReportingSettings } from "../core/test-reporting-settings";
 
-const DEFAULT_REPORTERS : Reporter[] = [ new ConsoleReporter() ];
+function applyDefaultSettings(settings : SuiteSettings) {
+    if (!settings)
+        settings = {};
+
+    if (!settings.reporting)
+        settings.reporting = {};
+
+    if (!settings.reporting.reporters)
+        settings.reporting.reporters = [ new ConsoleReporter() ];
+
+    if (typeof settings.reporting.exitAndReport === 'undefined')
+        settings.reporting.exitAndReport = true;
+    
+    return settings;
+}
 
 export class FluentSuite {
     constructor(settings : SuiteSettings = {}) {
-        this._settings = Object.assign(<SuiteSettings>{
-            reporting: {
-                reporters: DEFAULT_REPORTERS,
-                exitAndReport: true
-            }
-        }, settings);
-        this.suite = new TestSuite(new TestExecutionSettings(settings.execution), new TestReportingSettings(settings.reporting));
+        this._settings = applyDefaultSettings(settings);
+        this.suite = new TestSuite(new TestExecutionSettings(this._settings.execution), new TestReportingSettings(this._settings.reporting));
     }
 
     private _settings : SuiteSettings;
@@ -53,16 +62,11 @@ export class FluentSuite {
     }
 
     withOptions(settings : SuiteSettings): this {
-        if (!settings)
-            throw new Error(`You must pass an object to withOptions()`);
+        settings = applyDefaultSettings(settings);
         
         this._settings = settings;
-
-        if (settings.execution)
-            this.suite.executionSettings = new TestExecutionSettings(settings.execution);
-
-        if (settings.reporting)
-            this.suite.reportingSettings = new TestReportingSettings(settings.reporting);
+        this.suite.executionSettings = new TestExecutionSettings(settings.execution);
+        this.suite.reportingSettings = new TestReportingSettings(settings.reporting);
         
         return this;
     }
@@ -100,8 +104,7 @@ export async function runSuite(paths : string[], options? : SuiteSettings): Prom
 }
 
 export async function buildSuite(paths : string[], options? : SuiteSettings, testSuite? : TestSuite): Promise<TestSuite> {
-    if (!options) 
-        options = {};
+    options = applyDefaultSettings(options);
     
     // Build the test suite 
 
@@ -110,15 +113,7 @@ export async function buildSuite(paths : string[], options? : SuiteSettings, tes
     if (!testSuite) {
         testSuite = new TestSuite(
             new TestExecutionSettings(options.execution), 
-            new TestReportingSettings(
-                Object.assign(
-                    {
-                        reporters: DEFAULT_REPORTERS,
-                        exitAndReport: true
-                    }, 
-                    options.reporting
-                )
-            )
+            new TestReportingSettings(options.reporting)
         );
     }
 
@@ -245,12 +240,7 @@ export const it : TestBuilder = itRaw as any;
 
 async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSettings): Promise<TestSuiteResults>
 {
-    if (!settings)
-        settings = {};
-    if (!settings.reporting)
-        settings.reporting = {};
-    if (!settings.execution)
-        settings.execution = {};
+    settings = applyDefaultSettings(settings);
 
     // Build the test suite 
 
@@ -264,13 +254,7 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSet
     } else {
         testSuite = topLevelSuite = new TestSuite(
             new TestExecutionSettings(settings.execution), 
-            new TestReportingSettings(Object.assign(
-                {
-                    reporters: DEFAULT_REPORTERS,
-                    exitAndReport: true
-                }, 
-                settings.reporting
-            ))
+            new TestReportingSettings(settings.reporting)
         );
         top = true;
         zone = zone.fork({
