@@ -1,6 +1,5 @@
 # Razmin [![CircleCI](https://circleci.com/gh/rezonant/razmin.svg?style=svg)](https://circleci.com/gh/rezonant/razmin)
 
-
 A testing framework for modern Javascript.
 
 ```ts
