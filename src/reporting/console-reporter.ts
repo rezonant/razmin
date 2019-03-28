@@ -69,14 +69,23 @@ export class ConsoleReporter implements Reporter {
     
         let allPassed = results.subjectResults.map(x => x.passed).indexOf(false) < 0;
     
-        if ((failed > 0 && passed > 0) || skipped > 0)
-            console.log(`ran ${total} test(s): ${colors.green(`${passed} passed`)}, ${colors.yellow(`${skipped} skipped`)}, ${colors.red(`${failed} failed`)}`);
-        else if (failed > 0)
+        if ((failed > 0 && passed > 0) || skipped > 0) {
+            let parts = [];
+            if (passed > 0)
+                parts.push(`${colors.green(`${passed} passed`)}`);
+            if (skipped > 0) 
+                parts.push(`${colors.yellow(`${skipped} skipped`)}`);
+            if (failed > 0)
+                parts.push(`${colors.red(`${failed} failed`)}`);
+
+            console.log(`ran ${total} test(s): ${parts.join(', ')}`);
+        } else if (failed > 0) {
             console.log(`${colors.red(`${failed} / ${total} test(s) failed`)}`);
-        else if (total > 0)
+        } else if (total > 0) {
             console.log(`${colors.green(`${passed} test(s) passed`)}`);
-        else
+        } else {
             console.log(`${colors.yellow(`0 tests defined`)}`);
+        }
         
         console.log();
     }
