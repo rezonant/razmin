@@ -217,6 +217,76 @@ export async function test() {
             }
         ],
         [
+            'should wait for a setInterval task to complete',
+            {},
+            async () => {
+                let wasRun = false;
+
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will take a bit', async () => {
+                            let interval;
+                            
+                            interval = setInterval(() => {
+                                wasRun = true;
+                                clearInterval(interval);
+                            }, 100);
+                        })
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (!results.passed)
+                    throw new Error(`Should have passed`);
+                
+                if (!wasRun)
+                    throw new Error(`setInterval never fired`);
+            }
+        ],
+        [
+            'should reject a suite where setInterval threw an exception',
+            { },
+            async () => {
+
+                let wasRun = false;
+
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will take a bit', async () => {
+                            let interval;
+                            
+                            interval = setInterval(() => {
+                                wasRun = true;
+                                clearInterval(interval);
+                                throw new Error();
+                            }, 100);
+                        })
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Should have failed`);
+                
+                if (!wasRun)
+                    throw new Error(`setInterval never fired`);
+            }
+        ],
+        [
             'should reject a suite with an uncaught rejected promise',
             { skip: true },
             async () => {

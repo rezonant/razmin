@@ -28,7 +28,14 @@ export class TestZone {
                 return self.innerInvoke(() => delegate.invokeTask(target, task, applyThis, applyArgs));
             },
 
+            onCancelTask(pz, cz, tz, task) {
+                //console.log(`onCancelTask: canceled!!`);
+                pz.cancelTask(tz, task);
+            },
+
             onHasTask(delegate, current, target, hasTaskState) {
+
+                //console.log(`onHasTask: ${JSON.stringify(hasTaskState)}`);
                 delegate.hasTask(target, hasTaskState);
 
                 if (hasTaskState.change == 'microTask') {
@@ -66,8 +73,8 @@ export class TestZone {
 
     private _outside : Zone;
     private _nesting : number = 0;
-    private _hasPendingMicrotasks : boolean;
-    private _hasPendingMacrotasks : boolean;
+    private _hasPendingMicrotasks : boolean = false;
+    private _hasPendingMacrotasks : boolean = false;
     private _zone : Zone;
     private _onError : Subject<Error> = new Subject<Error>();
     private _isStable : boolean;
@@ -91,6 +98,9 @@ export class TestZone {
     }
 
     public checkStable() {
+
+        //console.log(`checkStable: nesting=${this._nesting}, macro=${this._hasPendingMacrotasks}, micro=${this._hasPendingMicrotasks}, stable=${this._isStable}`);
+
         if (this._nesting > 0 || this._hasPendingMacrotasks || this._hasPendingMicrotasks || this._isStable)
             return;
 
@@ -99,17 +109,20 @@ export class TestZone {
         
         try {
             this._nesting++;
-            this._onMicrotaskEmpty.next(null);
+            this._onMicrotaskEmpty.next();
         } finally {
             this._nesting--;
+        }
 
-            if (!this._hasPendingMicrotasks) {
-                try {
-                    this.runOutside(() => this._onStable.next(null));
-                } finally {
-                    this._isStable = true;
-                }
-            }
+        if (this._hasPendingMicrotasks)
+            return;
+
+        // stable 
+
+        try {
+            this.runOutside(() => this._onStable.next(null));
+        } finally {
+            this._isStable = true;
         }
     }
 
@@ -123,18 +136,27 @@ export class TestZone {
 
     private innerInvoke(callback : () => void) {
         this.onEnter();
+
+        let caughtError = false;
         try {
             return callback();
+        } catch (e) {
+            caughtError = true;
+            throw e;
         } finally {
             this.onLeave();
+            if (!caughtError)
+                this.checkStable();
         }
     }
 
     public onEnter() {
+        //console.log(`onEnter: depth ${this._nesting} -> ${this._nesting + 1}`);
         this._nesting += 1;
     }
 
     public onLeave() {
+        //console.log(`onLeave: depth ${this._nesting} -> ${this._nesting - 1}`);
         this._nesting -= 1;
     }
 }
