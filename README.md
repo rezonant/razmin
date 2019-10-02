@@ -225,6 +225,43 @@ By default when you execute a suite, either by executing your suite or using `su
 will exit the process with either a zero status code (success) or a one status code (failure). You 
 may wish to suppress this, to do so set the `exitAndReport` option to `false`.
 
+### Code Coverage
+
+You can easily add code coverage to your Razmin suite using `nyc`:
+
+```
+npm i nyc -D
+```
+
+Add this to `package.json`, adjusting your paths as necessary:
+
+```
+  "nyc": {
+    "all": true,
+
+    "extension": [
+      ".js",
+      ".ts"
+    ],
+    "include": [
+      "dist/**/*.js",
+      "src/**/*.ts"
+    ],
+
+    "exclude": [
+      "dist/**/*.test.js",
+      "src/**/*.test.ts",
+      "src/test.ts"
+    ],
+
+    "reporter": [
+      "html"
+    ]
+  },
+```
+
+Finally, make sure to enable `sourceMap: true` or `inlineSourceMap: true` within `tsconfig.json` so that `nyc` can map the compiled Javascript to the underlying Typescript source code.
+
 ## Contributing
 
 Fork on [Github](http://github.com/rezonant/razmin), file issues, and send pull requests!
