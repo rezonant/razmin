@@ -89,7 +89,8 @@ custom reporters would have no access to the failure information.
 
 ## Is it ready?
 
-Consider Razmin to be beta quality as of version 0.5.2. 
+Consider Razmin to be release candidate quality as of version 0.6.13.
+We will continue incrementing on 0.6.x until we are ready and then we will jump to 1.0. 
 
 ## Installation
 
