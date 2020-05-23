@@ -111,10 +111,12 @@ export class TestSubject implements LifecycleContainer {
             throw new Error(`Test ordering '${testExecutionSettings.order}' is not supported`);
         }
 
+        let onlyMode = testExecutionSettings && testExecutionSettings.only;
+        
         for (let test of tests) {
             let result : TestResult;
 
-            if (only.length > 0 && !only.includes(test)) {
+            if (onlyMode && !only.includes(test)) {
                 result = new TestResult({ 
                     description: test.description, 
                     passed: 'skip', 

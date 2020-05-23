@@ -8,6 +8,8 @@ export interface TestExecutionSettingsSpec {
      */
     timeout? : number;
 
+    verbose? : boolean;
+
     /**
      * Define the order to run the tests.
      * Use 'default' for load order, and 
@@ -40,6 +42,7 @@ export class TestExecutionSettings implements TestExecutionSettingsSpec {
     timeout : number = 10 * 1000;
     order : 'default' | 'random' = 'default';
     orderSeed : number = undefined;
+    only = false;
 
     clone(props : TestExecutionSettingsSpec) {
         return Object.assign(new TestExecutionSettings(this), props);

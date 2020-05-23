@@ -1232,6 +1232,30 @@ async function runTests() {
 
                     expect(observed).to.eq('ran-');
                 });
+                it('only runs .only() tests across nested suites', async () => {
+                    let observed = '';
+                    let theTest = await suite(describe => {
+
+                        suite(describe => {
+                            describe('A subject', it => {
+                                it('should not run()', () => observed += 's1-1:');
+                                it.only('should run()', () => observed += 's1-2:');
+                                it('should not run()', () => observed += 's1-3:');
+                            });
+                        });
+
+                        suite(describe => {
+                            describe('A subject', it => {
+                                it('should not run()', () => observed += 's2-1:');
+                                it('should not run()', () => observed += 's2-2:');
+                                it('should not run()', () => observed += 's2-3:');
+                            });
+                        });
+
+                    }, { reporting: { reporters: [] }});
+
+                    expect(observed).to.eq('s1-2:');
+                });
             });
         });
 

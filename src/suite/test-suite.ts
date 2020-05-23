@@ -60,12 +60,22 @@ export class TestSuite implements LifecycleContainer {
         this._executionSettings = value;
     }
 
+    public get only() {
+        return this.tests.some(x => x.options.only);
+    }
+
+    public get tests() : Test[] {
+        return [].concat(...this.subjects.map(x => x.tests).filter(x => x));
+    }
+
     async run(): Promise<TestSuiteResults> {
 
         for (let reporter of this.reporters) {
             if (reporter.onSuiteStarted)
                 reporter.onSuiteStarted(this);
         }
+
+        this.executionSettings.only = this.only;
 
         let results : TestSubjectResult[] = [];
         for (let subject of this._subjects) {

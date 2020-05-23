@@ -295,7 +295,13 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSet
         zone = zone.fork({
             name: 'razminSuiteZone',
             properties: {
-                razminTestSuite: testSuite
+                razminTestSuite: testSuite,
+
+                // When you have a suite() inside it(), we want that suite 
+                // to not join the parent suite, but we DO want subsuites inside
+                // the inner suite to join to THAT, so clear razminTest so we 
+                // don't trigger the isolation behavior further down the stack
+                razminTest: null
             }
         });
     }
