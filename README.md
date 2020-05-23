@@ -1,12 +1,12 @@
 # Razmin [![CircleCI](https://circleci.com/gh/rezonant/razmin.svg?style=svg)](https://circleci.com/gh/rezonant/razmin)
 
-A testing framework for modern Javascript.
+An async-aware testing framework for modern Javascript.
 
 ```ts
 import { describe, it } from 'razmin';
 
 describe('timeouts', () => {
-    it('can be traced', () => {
+    it('can be traced', () => { // <-- look, no done() is needed!
         setTimeout(() => {
             throw new Error("fail");
         }, 3 * 1000);
@@ -77,15 +77,35 @@ Mocha does better than Jasmine by not forcing an exit upon completion of the tes
 Node.js itself will normally wait for async tasks to complete before ending the process.
 Mocha simply does not exit after printing it's results, which means that Node.js reports the 
 uncaught exception and the exit code becomes non-zero, so this would be caught in a typical 
-continuous integration flow, but there's no traceability into which test caused the exception, and 
-custom reporters would have no access to the failure information.
+continuous integration flow, and in this case we can see what spec caused the issue, but 
+depending on the scenario, there may or may not be any visibility into which test caused 
+the exception, and custom reporters would have no access to the failure information,
+so generated reports, alerting, etc would show zero failures, despite the build failing.
+
+This sort of failure is a first-class citizen in Razmin (in fact, an exception emitted from 
+within the test zone is the only way Razmin knows about a test failure)
 
 ## Project Goals
-- No false positives: No test should pass when it shouldn't have, and any type of test failure we 
-  can detect should be detected
-- Ease of use: Reduce the ceremony needed for async unit testing
-- Clarity: Reduce the chance that a developer will fumble on asynchronous testing
-- Modern: No impedance mismatch for ES6/Typescript developers
+- **No false positives. Ever.**  
+  No test should pass when it shouldn't have, and any type 
+  of test failure we can detect should be detected. Any test
+  which intuitively is a failure but is not reported as such 
+  in Razmin is a bug.
+
+- **Ease of use**  
+  Reduce the ceremony needed for async unit testing. Zone.js
+  lets us track outstanding async tasks to ensure that your 
+  test is never shown as completed before outstanding work 
+  has finished. We use the same style of testing (`describe/it`) 
+  made popular by Jasmine & Mocha so starting with Razmin 
+  does not require learning any new concepts.
+- **Clarity**  
+  Reduce the chance that a developer will fumble on asynchronous testing.
+  No more missed errors because you forgot to `await` something. No broken tests because you forgot to call `done()` or you called it too early. 
+  There is no `done()`.
+- **Modern**  
+  No impedance mismatch for ES6/Typescript developers. Written in Typescript,
+  so we ship type declarations and source maps right in the package. The library is structured for ES exports. No need to reach for DefinitelyTyped every time you want to test. 
 
 ## Is it ready?
 
