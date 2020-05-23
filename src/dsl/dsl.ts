@@ -246,15 +246,50 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSet
 
     let testSuite : TestSuite;
     let top = false;
-    let topLevelSuite = Zone.current.get('razminTestSuite');
+    let topLevelSuite : TestSuite = Zone.current.get('razminTestSuite');
+    let currentTest = Zone.current.get('razminTest');
     let zone : Zone = Zone.current;
+    let isolated = settings && settings.execution && settings.execution.isolated;
+    
+    // or if this suite() declaration lives within an it() declaration,
+    // then we must not join our results onto the parent suite
+    if (currentTest && topLevelSuite) {
+        if (topLevelSuite.executionSettings.verbose) {
+            console.warn(
+                `Warning: Detected a suite() declaration inside an it() test. ` 
+                + `The inner suite will run independently of the outer suite (forcing execution.isolated to be true)`);
+        }
 
+        isolated = true;
+    }
+
+    // If we were asked to remain isolated from any parent suite, do so
+    
+    if (isolated)
+        topLevelSuite = null;
+    
     if (topLevelSuite) {
         testSuite = topLevelSuite;
     } else {
+        let executionSettings = new TestExecutionSettings(settings.execution);
+        let reportingSettings = new TestReportingSettings(settings.reporting);
+
+        // If this new suite is being declared inside another Razmin test then 
+        // we must not use exitAndReport or the containing test will never complete,
+        // since we will run process.exit().
+
+        if (currentTest && reportingSettings.exitAndReport) {
+            if (executionSettings.verbose) {
+                console.warn(
+                    `Warning: Suite declared inside of test case cannot use exitAndReport or outer suite will be interrupted. ` 
+                    + `(forcing reporting.exitAndReport to be false)`);
+            }
+            reportingSettings.exitAndReport = false;
+        }
+
         testSuite = topLevelSuite = new TestSuite(
-            new TestExecutionSettings(settings.execution), 
-            new TestReportingSettings(settings.reporting)
+            executionSettings, 
+            reportingSettings
         );
         top = true;
         zone = zone.fork({
@@ -374,6 +409,7 @@ function argsMatch(args : any[], patterns : string[]) {
  */
 export function suite() : FluentSuite;
 export async function suite(builder : TestSuiteFactory, settings?: SuiteSettings): Promise<TestSuiteResults> 
+
 export function suite(...args): any
 {
     if (argsMatch(args, ['object?']))

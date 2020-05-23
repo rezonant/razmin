@@ -22,6 +22,11 @@ export interface TestExecutionSettingsSpec {
      * to have a seed chosen at runtime.
      */
     orderSeed? : number;
+
+    /**
+     * Run this suite independent of any enclosing suite (by zone)
+     */
+    isolated? : boolean;
 }
 
 export class TestExecutionSettings implements TestExecutionSettingsSpec {
@@ -30,6 +35,7 @@ export class TestExecutionSettings implements TestExecutionSettingsSpec {
             Object.assign(this, def);
     }
     
+    verbose = false;
     contextName : string;
     timeout : number = 10 * 1000;
     order : 'default' | 'random' = 'default';

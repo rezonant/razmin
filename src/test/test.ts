@@ -43,7 +43,9 @@ export class Test {
      */
     private executeInSandbox(executionSettings : TestExecutionSettings): Promise<void> {
         return new Promise((resolve, reject) => {
-            let zone = new TestZone(`Test Zone: ${executionSettings.contextName}`);
+            let zone = new TestZone(`Test Zone: ${executionSettings.contextName}`, {
+                razminTest: this
+            });
             let executionCompleted = false;
             let isStable = false;
             let isResolved = false;
@@ -66,6 +68,8 @@ export class Test {
                 }
             });
 
+            if (executionSettings.verbose)
+                console.log(`Running test: ${executionSettings.contextName}`);
             zone.invoke(async () => {
 
                 let unhandledRejectionHandler = (reason, promise) => {

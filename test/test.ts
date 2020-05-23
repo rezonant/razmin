@@ -5,6 +5,7 @@ import * as colors from 'colors/safe';
 import { Observable, of, interval, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { TestReportingSettings } from '../src/core/test-reporting-settings';
+import { resolve } from 'dns';
 
 interface SanityTestOptions {
     skip?: boolean;
@@ -995,7 +996,7 @@ export async function test() {
             }
         ],
         [
-            'suite() should wait for it\'s zone to resolve before continuing',
+            'suite() should wait for its zone to resolve before continuing',
             { skip: false },
             async () => {
                 let message = '';
@@ -1003,6 +1004,50 @@ export async function test() {
 
                 let results = await suite(async describe => {
                     describe('thing1', async it => {
+                        await delay(100);
+                        it('will succeed', async () => value += '1');
+                        it('will succeed', async () => value += '2');
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+                
+                let result = results.subjectResults.find(x => x.description == 'thing1');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.tests.length).to.eq(2);
+                
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('12');
+            }
+        ],
+        [
+            'suite() should not be confused by zone-isolated inner suites',
+            { skip: false },
+            async () => {
+                let message = '';
+                let value = '';
+
+                let results = await suite(async describe => {
+                    describe('thing1', async it => {
+                        
+                        await suite(describe => {
+                            describe('A thing', it => {
+                                it('works well', () => { throw new Error() });
+                            });
+                        }, { 
+                            execution: { 
+                                isolated: true 
+                            }, 
+                            reporting: { 
+                                exitAndReport: false,
+                                reporters: []
+                            } 
+                        });
+
                         await delay(100);
                         it('will succeed', async () => value += '1');
                         it('will succeed', async () => value += '2');
@@ -1106,6 +1151,11 @@ export async function runSanityTests() {
 
 async function runTests() {
     console.log('= Primary Tests =');
+
+    let existingSuite = Zone.current.get('razminTestSuite');
+    if (existingSuite) 
+        throw new Error(`Error: While running the primary test suite we noticed we are already in a test suite! This is a bug!`);
+
     return await suite(describe => {
         describe('TestSuite', it => {
             it('should run its suites', async () => {
@@ -1156,7 +1206,33 @@ async function runTests() {
                 let value = 0;
                 before(() => value += 1);
                 it('runs before() before tests', () => expect(value).to.eq(1));
-            })
+            });
+            describe('.after', it => {
+                it('runs after() after tests', async () => {
+                    let observed = '';
+                    let theTest = await suite(describe => {
+                        describe('A subject', it => {
+                            after(() => observed += 'after-');
+                            it('should run()', () => observed += 'test-');
+                        });
+                    }, { reporting: { reporters: [] }});
+                    expect(observed).to.eq('test-after-');
+                });
+            });
+            describe('.only', it => {
+                it('only runs .only() tests when one is specified', async () => {
+                    let observed = '';
+                    let theTest = await suite(describe => {
+                        describe('A subject', it => {
+                            it('should not run()', () => observed += 'skipped-');
+                            it.only('should run()', () => observed += 'ran-');
+                            it('should not run()', () => observed += 'skipped-');
+                        });
+                    }, { reporting: { reporters: [] }});
+
+                    expect(observed).to.eq('ran-');
+                });
+            });
         });
 
         describe('Test', it => {
