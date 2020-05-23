@@ -12,7 +12,9 @@ export class ConsoleReporter implements Reporter {
         let skipped = 0;
     
         for (let subjectResult of results.subjectResults) {
-            if (subjectResult.tests.length == 0)
+            let visibleCount = subjectResult.tests.filter(x => !x.hidden).length;
+
+            if (visibleCount > 0)
                 continue;
             
             console.log();
