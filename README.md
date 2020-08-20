@@ -115,7 +115,7 @@ We will continue incrementing on 0.6.x until we are ready and then we will jump 
 ## Installation
 
 ```sh
-npm install razmin --save-dev
+npm install razmin @types/node@14.0.4 --save-dev
 ```
 
 ## Usage
