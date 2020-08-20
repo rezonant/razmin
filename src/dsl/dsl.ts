@@ -14,7 +14,6 @@ import { TestSuiteResults } from "../suite";
 
 import { TestSuiteFactory } from "./test-suite-factory";
 
-import * as requireGlob from 'require-glob';
 import * as callsites from 'callsites';
 import * as path from 'path';
 import { TestSubjectBuilder } from "./test-subject-builder";
@@ -38,6 +37,14 @@ function applyDefaultSettings(settings : SuiteSettings) {
         settings.reporting.exitAndReport = true;
     
     return settings;
+}
+
+function include(moduleName) {
+    try {
+        return require(moduleName);
+    } catch (e) {
+        return null;
+    }
 }
 
 export class FluentSuite {
@@ -126,6 +133,7 @@ export async function buildSuite(paths : string[], options? : SuiteSettings, tes
     });
     
     await new Promise((resolve, reject) => {
+        let requireGlob = include('require-glob');
         zone.run(async () => {
             try { 
                 requireGlob.sync(paths, {
