@@ -7,7 +7,7 @@ require('source-map-support').install();
 
 import { TestSuite } from "../suite";
 import { Reporter } from '../reporting';
-import { TestExecutionSettings, TestExecutionSettingsSpec } from "../core";
+import { TestExecutionSettings, TestExecutionSettingsSpec, SuiteSettings } from "../core";
 import { TestSubject } from "../subject";
 import { TestFunction, TestOptions, Skip } from "../test";
 import { TestSuiteResults } from "../suite";
@@ -96,14 +96,6 @@ export class FluentSuite {
     async run() {
         return await this.suite.run();
     }
-}
-
-/**
- * Specify settings for this test suite.
- */
-export interface SuiteSettings {
-    execution? : TestExecutionSettingsSpec;
-    reporting? : TestReportingSettingsSpec;
 }
 
 export async function runSuite(paths : string[], options? : SuiteSettings): Promise<TestSuiteResults> {
