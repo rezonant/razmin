@@ -18,9 +18,9 @@
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
-    "@types/node": "^9.6.31",
+    "@types/node": "14.0.4",
     "chai": "^4.1.2",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.9.7"
   },
   "dependencies": {
     "@types/mersenne-twister": "^1.1.2",

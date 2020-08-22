@@ -1,3 +1,4 @@
+import "./karma/adapter";
 
 export * from './core';
 export * from './dsl';
