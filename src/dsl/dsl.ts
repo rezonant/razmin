@@ -246,7 +246,7 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSet
 
     let testSuite : TestSuite;
     let top = false;
-    let topLevelSuite : TestSuite = Zone.current.get('razminTestSuite');
+    let topLevelSuite : TestSuite = TestSuite.topLevel;
     let currentTest = Zone.current.get('razminTest');
     let zone : Zone = Zone.current;
     let isolated = settings && settings.execution && settings.execution.isolated;

@@ -3,7 +3,7 @@ import { TestFunction } from "../test";
 import { TestSubject } from "../subject";
 import { TestSubjectResult } from "../subject";
 import { TestSuiteResults } from "../suite";
-import { TestExecutionSettings } from "../core";
+import { TestExecutionSettings, globalSuiteSettings } from "../core";
 import { LifecycleContainer } from "../util";
 import { TestReportingSettings } from "../core/test-reporting-settings";
 
@@ -17,6 +17,26 @@ export class TestSuite implements LifecycleContainer {
 
         if (!this._reportingSettings)
             this._reportingSettings = new TestReportingSettings();
+    }
+
+    public static get topLevel(): TestSuite {
+        return this.global || Zone.current.get('razminTestSuite');
+    }
+
+    private static _global : TestSuite;
+
+    public static get global() : TestSuite {
+        if (!this._global) {
+            let settings = globalSuiteSettings();
+            if (settings) {
+                this._global = new TestSuite(
+                    new TestExecutionSettings(settings.execution), 
+                    new TestReportingSettings(settings.reporting)
+                );
+            }
+        }
+        
+        return this._global;
     }
 
     addEventListener(eventName : string, handler : Function) {
@@ -69,7 +89,7 @@ export class TestSuite implements LifecycleContainer {
     }
 
     async run(): Promise<TestSuiteResults> {
-
+        
         for (let reporter of this.reporters) {
             if (reporter.onSuiteStarted)
                 reporter.onSuiteStarted(this);
