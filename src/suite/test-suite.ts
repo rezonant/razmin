@@ -92,7 +92,7 @@ export class TestSuite implements LifecycleContainer {
 
         if (this._reportingSettings.exitAndReport !== false) {
 
-            if (typeof process !== 'undefined') {
+            if (typeof process !== 'undefined' && process.exit) {
                 process.exit(suiteResults.passed ? 0 : 1);
             } else {
                 console.log(`Razmin: Testing finished. Passed=${suiteResults.passed}`);
