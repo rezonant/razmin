@@ -21,4 +21,5 @@ export interface Karma {
     complete(suiteResult? : SuiteResult);
     error(message : string);
     info(message : InfoMessage);
+    start : Function;
 }
