@@ -3,7 +3,7 @@ import { TestFunction } from "../test";
 import { TestSubject } from "../subject";
 import { TestSubjectResult } from "../subject";
 import { TestSuiteResults } from "../suite";
-import { TestExecutionSettings, globalSuiteSettings } from "../core";
+import { TestExecutionSettings, globalSuiteSettings, setGlobalSuite } from "../core";
 import { LifecycleContainer } from "../util";
 import { TestReportingSettings } from "../core/test-reporting-settings";
 
