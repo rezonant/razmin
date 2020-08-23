@@ -283,6 +283,70 @@ Add this to `package.json`, adjusting your paths as necessary:
 
 Finally, make sure to enable `sourceMap: true` or `inlineSourceMap: true` within `tsconfig.json` so that `nyc` can map the compiled Javascript to the underlying Typescript source code.
 
+## Browser Testing with Karma
+
+Razmin natively supports Karma. You do not need to load a Karma framework to use Razmin
+with Karma. Instead, just specify a `files` pattern in your `karma.conf.ts` that matches your
+Razmin test files (ie `**/*.test.ts`). Note that you cannot use `suite().include()` when 
+running Razmin tests with Karma. Note you will need a way to bundle your tests for running 
+within the browser- using `karma-webpack` does the trick.
+
+Here's a sample `karma.conf.ts` that should get you started:
+
+```typescript
+import * as karma from 'karma';
+import * as path from 'path';
+
+export = function (config : karma.Config) {
+    config.set(<karma.ConfigOptions & { webpack }>{
+        basePath: '',
+        files: [
+            { pattern: 'src/**/*.test.ts' }
+        ],
+
+        preprocessors: {
+            '**/*.test.ts': ['webpack']
+        },
+        plugins: [
+            'karma-webpack',
+            'karma-sourcemap-loader',
+            'karma-chrome-launcher'
+        ],
+
+        webpack: {
+            devtool: 'inline-source-map',
+            module: {
+                rules: [
+                    {
+                        test: /\.ts$/,
+                        include: path.join(__dirname, 'src')
+                        use: [
+                            {
+                                loader: 'ts-loader',
+                                options: {
+                                    compilerOptions: {
+                                        module: "ES2015",
+                                        target: "ES2015",
+                                        moduleResolution: "node"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            resolve: {
+              extensions: [ '.ts', '.js' ],
+            },
+        },
+
+        webpackMiddleware: {
+            stats: 'errors-only',
+        },
+    });
+}
+```
+
 ## Contributing
 
 Fork on [Github](http://github.com/rezonant/razmin), file issues, and send pull requests!
