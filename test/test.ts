@@ -1152,7 +1152,7 @@ export async function runSanityTests() {
 async function runTests() {
     console.log('= Primary Tests =');
 
-    let existingSuite = Zone.current.get('razminTestSuite');
+    let existingSuite = TestSuite.current;
     if (existingSuite) 
         throw new Error(`Error: While running the primary test suite we noticed we are already in a test suite! This is a bug!`);
 
