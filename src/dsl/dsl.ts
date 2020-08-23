@@ -145,7 +145,7 @@ export async function buildSuite(paths : string[], options? : SuiteSettings, tes
 }
 
 async function describeRaw(description : string, testFactory : TestFactory, options? : TestOptions) {
-    let testSuite : TestSuite = Zone.current.get('razminTestSuite');
+    let testSuite : TestSuite = TestSuite.current;
     if (!testSuite) {
         suiteDeclaration(() => describe(description, testFactory));
         return;
