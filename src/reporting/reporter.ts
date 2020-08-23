@@ -3,6 +3,7 @@ import { Test, TestResult } from "../test";
 import { TestSubject } from "../subject";
 
 export interface Reporter {
+    onSuiteLoaded?(suite : TestSuite);
     onSuiteStarted?(suite : TestSuite);
     onSubjectStarted?(suite : TestSuite, subject : TestSubject);
     onTestStarted?(suite: TestSuite, subject : TestSubject, test : Test);

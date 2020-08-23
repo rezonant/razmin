@@ -306,6 +306,8 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSet
         });
     }
 
+    let finishedLoading = testSuite._startLoading();
+
     await zone.run(async () => {
         await new Promise<void>((resolve, reject) => {
             // Construct a new zone to track async activity in the suite
@@ -324,6 +326,8 @@ async function suiteDeclaration(builder : TestSuiteFactory, settings? : SuiteSet
             });
         });
     });
+
+    finishedLoading();
 
     if (!top)
         return;

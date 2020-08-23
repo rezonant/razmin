@@ -12,6 +12,9 @@ export class TestSuite implements LifecycleContainer {
         private _executionSettings? : TestExecutionSettings,
         private _reportingSettings? : TestReportingSettings
     ) {
+        this._fullyLoaded = new Promise(resolve => this._hasFullyLoaded = resolve);
+        this._fullyLoaded.then(() => this.reporters.forEach(r => r.onSuiteLoaded ? r.onSuiteLoaded(this) : null));
+        
         if (!this._executionSettings)
             this._executionSettings = new TestExecutionSettings();
 
@@ -89,7 +92,7 @@ export class TestSuite implements LifecycleContainer {
     }
 
     async run(): Promise<TestSuiteResults> {
-        
+
         for (let reporter of this.reporters) {
             if (reporter.onSuiteStarted)
                 reporter.onSuiteStarted(this);
@@ -124,5 +127,34 @@ export class TestSuite implements LifecycleContainer {
 
     addSubject(subject : TestSubject) {
         this._subjects.push(subject);
+    }
+
+    private _fullyLoaded : Promise<void>;
+    private _hasFullyLoaded : Function;
+    private _outstandingLoads = 0;
+    private _isFullyLoaded = false;
+
+    _startLoading(): () => void {
+        this._outstandingLoads += 1;
+        return () => {
+            this._outstandingLoads -= 1;
+            if (this._outstandingLoads === 0) {
+                if (this._isFullyLoaded) {
+                    console.warn(`[Razmin] Bug: Already signalled load finish`);
+                } else {
+                    setTimeout(() => {
+                        if (this._outstandingLoads > 0)
+                            return;
+                        this._isFullyLoaded = true;
+                        this._hasFullyLoaded();
+                        this.fireEvent('loaded');
+                    });
+                }
+            }
+        }
+    }
+
+    get loaded() {
+        return this._fullyLoaded;
     }
 }
