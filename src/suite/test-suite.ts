@@ -29,10 +29,10 @@ export class TestSuite implements LifecycleContainer {
         if (!this._global) {
             let settings = globalSuiteSettings();
             if (settings) {
-                this._global = new TestSuite(
+                this._global = setGlobalSuite(new TestSuite(
                     new TestExecutionSettings(settings.execution), 
                     new TestReportingSettings(settings.reporting)
-                );
+                ));
             }
         }
         
