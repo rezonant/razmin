@@ -19,7 +19,7 @@ export class TestSuite implements LifecycleContainer {
             this._reportingSettings = new TestReportingSettings();
     }
 
-    public static get topLevel(): TestSuite {
+    public static get current(): TestSuite {
         return this.global || Zone.current.get('razminTestSuite');
     }
 
