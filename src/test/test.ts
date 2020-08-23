@@ -184,7 +184,16 @@ export class Test {
                 return new TestResult({
                     description: this._description, 
                     passed: false, 
-                    message: `Timed out (${executionSettings.timeout}ms) without completing`, 
+                    message: `Timed out (${executionSettings.timeout}ms) without completing.` + (
+                        (this.function.length > 0 ? (
+                            `\n` 
+                            + `This test accepts a done() parameter. Did you forget to call it?\n` 
+                            + `Note: You only need to use done() when using libraries/APIs that\n` 
+                            + `are not Zone-patched (or not patched properly).\n` 
+                            + `** If you are not using it, you should remove it to prevent the\n` 
+                            + `test from hanging.`
+                        ) : ``)
+                    ), 
                     duration
                 });
             }
