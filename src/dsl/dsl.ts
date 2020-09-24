@@ -78,7 +78,7 @@ export class FluentSuite {
         return this;
     }
 
-    private suiteBuilders : Promise<any>[];
+    private suiteBuilders : Promise<any>[] = [];
 
     include(paths : string[]): this {
         let origDir = process.cwd();
