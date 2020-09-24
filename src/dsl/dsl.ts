@@ -78,6 +78,8 @@ export class FluentSuite {
         return this;
     }
 
+    private suiteBuilders : Promise<any>[];
+
     include(paths : string[]): this {
         let origDir = process.cwd();
         let callerFile = callsites()[1].getFileName();
@@ -85,7 +87,7 @@ export class FluentSuite {
             process.chdir(path.dirname(callerFile));
 
         try {
-            buildSuite(paths, this.settings, this.suite);
+            this.suiteBuilders.push(buildSuite(paths, this.settings, this.suite));
         } finally {
             process.chdir(origDir);
         }
@@ -94,6 +96,17 @@ export class FluentSuite {
     }
 
     async run() {
+        try {
+            await Promise.all(this.suiteBuilders);
+        } catch (e) {
+            if (this.suite.reportingSettings.exitAndReport) {
+                console.error(`Failed to build test suite:`);
+                console.error(e);
+                process.exit(1);
+            } else {
+                throw e;
+            }
+        }
         return await this.suite.run();
     }
 }
