@@ -10,12 +10,6 @@ export class Skip {}
 export class Timeout {}
 
 /**
- * Whether to enable experimental Node.js promise rejection detection
- * using `process.on('unhandledRejection')`.
- */
-const ENABLE_NODE_REJECTION_DETECTION = false;
-
-/**
  * Represents a unit test which can run itself.
  */
 export class Test {
@@ -106,18 +100,6 @@ export class Test {
                 console.log(`Running test: ${executionSettings.contextName}`);
             
             zone.invoke(async () => {
-                let unhandledRejectionHandler = (reason, promise) => {
-                    if (Zone.current !== zone.zone) {
-                        console.warn(`Skipping unrelated unhandled rejection from a different zone`);
-                        return;
-                    }
-                    
-                    console.log(`UNHANDLED REJECTION`);
-                    console.dir(promise);
-                    console.log(`REASON:`);
-                    console.log(reason);
-                };
-
                 let uncaughtExceptionHandler = (err) => {
                     if (Zone.current !== zone.zone) {
                         console.warn(`Skipping unrelated uncaught exception from a different zone`);
@@ -128,11 +110,6 @@ export class Test {
                     console.error(err);
                 };
                 
-                if (ENABLE_NODE_REJECTION_DETECTION && typeof process !== 'undefined') {
-                    process.on('unhandledRejection', unhandledRejectionHandler);
-                    process.on('uncaughtException', uncaughtExceptionHandler);
-                }
-
                 try {
                     let takesDone = this.function.length > 0;
 
@@ -170,11 +147,6 @@ export class Test {
                     }
 
                     finalizer(e);
-                }
-                
-                if (ENABLE_NODE_REJECTION_DETECTION && typeof process !== 'undefined') {
-                    process.removeListener('unhandledRejection', unhandledRejectionHandler);
-                    process.removeListener('uncaughtException', uncaughtExceptionHandler);
                 }
             });
         });
