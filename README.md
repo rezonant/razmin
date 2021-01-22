@@ -211,8 +211,11 @@ describe('a thing', it => {
 
 ### Unhandled Promise Rejections
 
-**Razmin does not (yet!) detect unhandled promise rejections, which are not caused by exceptions, on 
-any platform.** There is experimental support in the codebase, but it is not yet ready for use.
+Razmin **✔️ does** detect unhandled promise rejections correctly.
+
+### Native async/await
+
+Razmin **✔️ does not** properly handle native async/await. This is an ongoing limitation of Zone.js. You will need to target ES2017 or lower so that Typescript downlevels your async/await in order for Razmin to work properly. For details see https://github.com/angular/angular/issues/31730
 
 ## Configuration
 
