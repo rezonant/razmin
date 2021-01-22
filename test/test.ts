@@ -194,7 +194,6 @@ export async function test() {
                 let results = await suite(describe => {
                     describe('thing under test', it => {
                         it('will fail', async () => {
-                            
                             Promise.resolve().then(() => { throw new Error() }).catch(e => {
                                 wasCaught = true;
                             });
@@ -288,17 +287,15 @@ export async function test() {
             }
         ],
         [
-            'should reject a suite with an uncaught rejected promise',
-            { skip: true },
+            'should reject a suite with a simple uncaught rejected promise',
+            {},
             async () => {
                 let wasCaught = false;
 
                 let results = await suite(describe => {
                     describe('thing under test', it => {
-                        it('will fail', async () => {
-                            Promise.reject(new Error('stuff')).then(() => {
-
-                            });
+                        it('will fail', () => {
+                            Promise.reject(new Error('(should be caught)'));
                         })
                     });
                 }, {
@@ -313,6 +310,71 @@ export async function test() {
 
                 if (results.passed)
                     throw new Error(`Test subject was expected to fail`);
+
+                let message = results.subjectResults[0].tests[0].message;
+                if (!message.includes('(should be caught)')) {
+                    throw new Error(`Expected failure has unexpected message: '${message}'`);
+                }
+            }
+        ],
+        [
+            'should reject a suite with an uncaught rejected promise',
+            {},
+            async () => {
+                let wasCaught = false;
+
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will fail', () => new Promise((resolve, reject) => reject(new Error('(should be caught)'))));
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+                
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Test subject was expected to fail`);
+
+                let message = results.subjectResults[0].tests[0].message;
+                if (!message.includes('(should be caught)')) {
+                    throw new Error(`Expected failure has unexpected message: '${message}'`);
+                }
+            }
+        ],
+        [
+            'should reject a suite with a delayed uncaught rejected promise',
+            { skip: false },
+            async () => {
+                let wasCaught = false;
+
+                let results = await suite(describe => {
+                    describe('thing under test', it => {
+                        it('will fail', () => {
+                            new Promise((resolve, reject) => setTimeout(() => reject(new Error('(should be caught)')), 1000));
+                        })
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+
+                if (!results)
+                    throw new Error('Received invalid results from suite()');
+
+                if (results.passed)
+                    throw new Error(`Test subject was expected to fail`);
+
+                let message = results.subjectResults[0].tests[0].message;
+                if (!message.includes('(should be caught)')) {
+                    throw new Error(`Expected failure has unexpected message: '${message}'`);
+                }
             }
         ],
         [

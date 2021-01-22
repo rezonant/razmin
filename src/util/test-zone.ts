@@ -29,7 +29,6 @@ export class TestZone {
             },
 
             onCancelTask(pz, cz, tz, task) {
-                //console.log(`onCancelTask: canceled!!`);
                 pz.cancelTask(tz, task);
             },
 
@@ -118,6 +117,7 @@ export class TestZone {
             return;
 
         // stable 
+        //console.log(`stable!!`);
 
         try {
             this.runOutside(() => this._onStable.next(null));

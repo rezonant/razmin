@@ -7,6 +7,7 @@ import { delay, TestZone } from '../util';
 import { TestExecutionSettings } from "../core";
 
 export class Skip {}
+export class Timeout {}
 
 /**
  * Whether to enable experimental Node.js promise rejection detection
@@ -49,29 +50,62 @@ export class Test {
             let executionCompleted = false;
             let isStable = false;
             let isResolved = false;
+            let isSuccessful : boolean = undefined;
+            let timeoutHandle;
+            let finalizerTimeout;
+            let errorBeingFinalized;
+            let finalizer = (error? : any) => {
+                if (errorBeingFinalized)
+                    return;
+                clearTimeout(finalizerTimeout);
+                errorBeingFinalized = error;
+                finalizerTimeout = setTimeout(() => {
+                    if (isResolved)
+                        return;
+                    isSuccessful = !error;
+                    isResolved = true;
+                    if (error)
+                        reject(error);
+                    else
+                        resolve();
+                });
+            };
+
+            if (executionSettings.timeout) {
+                timeoutHandle = setTimeout(() => finalizer(new Timeout()), executionSettings.timeout);
+
+                let originalFinalizer = finalizer;
+                finalizer = (error? : any) => {
+                    clearTimeout(timeoutHandle);
+                    originalFinalizer(error);
+                };
+            }
 
             zone.onError.subscribe(e => {
                 if (isResolved) {
-                    console.error(`Caught error after test completed, this is a bug.`);
-                    console.error(`Error was:`);
-                    console.error(e);
-                    throw new Error(`Caught error after test completed, this is a bug.`);
+                    if (isSuccessful) {
+                        console.error(`Caught error after test completed successfully (this is a bug):`);
+                        console.error(e);
+                        throw new Error(`Caught error after test completed successfully (this is a bug)`);
+                    } else {
+                        console.error(`(*) Caught additional error after test '${this.description}' had already failed:`);
+                        console.error(e);
+                    }
                 }
 
-                reject(e);
+                finalizer(e);
             });
+
             zone.onStable.subscribe(e => {
                 isStable = true;
-                if (executionCompleted) {
-                    isResolved = true;
-                    resolve();
-                }
+                if (executionCompleted && !isResolved)
+                    finalizer();
             });
 
             if (executionSettings.verbose)
                 console.log(`Running test: ${executionSettings.contextName}`);
+            
             zone.invoke(async () => {
-
                 let unhandledRejectionHandler = (reason, promise) => {
                     if (Zone.current !== zone.zone) {
                         console.warn(`Skipping unrelated unhandled rejection from a different zone`);
@@ -120,18 +154,22 @@ export class Test {
                     }
 
                     executionCompleted = true;
-                    if (isStable) {
-                        isResolved = true;
-                        resolve();
+                    if (isStable && !isResolved) {
+                        finalizer();
                     }
                 } catch (e) {
                     if (isResolved) {
-                        console.error(`Caught error after test completed, this is a bug.`);
-                        console.error(`Error was:`);
-                        console.error(e);
-                        throw new Error(`Caught error after test completed, this is a bug.`);
+                        if (isSuccessful) {
+                            console.error(`Caught error after test successfully completed (this is a bug):`);
+                            console.error(e);
+                            throw new Error(`Caught error after test successfully completed (this is a bug)`);
+                        } else {
+                            console.error(`(*) Caught additional error after test '${this.description}' had already failed:`);
+                            console.error(e);
+                        }
                     }
-                    reject(e);
+
+                    finalizer(e);
                 }
                 
                 if (ENABLE_NODE_REJECTION_DETECTION && typeof process !== 'undefined') {
@@ -155,8 +193,6 @@ export class Test {
 
         executionSettings = (executionSettings || new TestExecutionSettings()).clone({ contextName });
         
-        let timeOutToken = {};
-        let timeout = delay(executionSettings.timeout || 10*1000, timeOutToken);
         let startedAt = Date.now();
         let finishedAt = undefined;
         let duration = undefined;
@@ -169,18 +205,33 @@ export class Test {
             let result;
 
             try {
-                result = await Promise.race([
-                    timeout, 
-                    this.executeInSandbox(executionSettings)
-                ]);
+                result = await this.executeInSandbox(executionSettings);
             } finally {
                 finishedAt = Date.now();
                 duration = finishedAt - startedAt;
             }
 
-            // If the operation timed out, report that.
+            // Execution has completed successfully.
+            
+            return new TestResult({
+                description: this._description, 
+                passed: true, 
+                message: "Success", 
+                duration
+            });
+            
+        } catch (e) {
+            // An exception was caught while handling the test.
+            // Produce a result which indicates the error.
 
-            if (result === timeOutToken) {
+            // If the test was skipped, return a skip result 
+
+            if (e instanceof Skip)
+                return new TestResult({ description: this._description, passed: 'skip', message: 'Skipped' });
+
+            // If it timed out, report that
+
+            if (e instanceof Timeout) {
                 return new TestResult({
                     description: this._description, 
                     passed: false, 
@@ -197,22 +248,8 @@ export class Test {
                     duration
                 });
             }
-        
-            // Execution has completed successfully.
-            
-            return new TestResult({
-                description: this._description, 
-                passed: true, 
-                message: "Success", 
-                duration
-            });
-            
-        } catch (e) {
-            // An exception was caught while handling the test.
-            // Produce a result which indicates the error.
 
-            if (e instanceof Skip)
-                return new TestResult({ description: this._description, passed: 'skip', message: 'Skipped' });
+            // For all other cases, the test itself threw an exception
 
             let indent = '     ';
             let message = e.message ? e.message : e+"";
@@ -250,8 +287,6 @@ export class Test {
                         : ''), 
                 duration
             });
-        } finally {
-            timeout.cancel();
         }
     }
 }
