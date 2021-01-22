@@ -109,8 +109,8 @@ within the test zone is the only way Razmin knows about a test failure)
 
 ## Is it ready?
 
-Consider Razmin to be release candidate quality as of version 0.6.13.
-We will continue incrementing on 0.6.x until we are ready and then we will jump to 1.0. 
+Razmin is feature complete and stable as of version 1.0.0 (January 2021)! It is ready for all production uses. If you 
+find issues, please post them!
 
 ## Installation
 
