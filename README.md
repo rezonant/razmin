@@ -215,7 +215,9 @@ Razmin **✔️ does** detect unhandled promise rejections correctly.
 
 ### Native async/await
 
-Razmin **❌ does not** properly handle native async/await. This is an ongoing limitation of Zone.js. You will need to target ES2017 or lower so that Typescript downlevels your async/await in order for Razmin to work properly. For details see https://github.com/angular/angular/issues/31730
+While most tests will work correctly with native async/await, Razmin **❌ does not** properly handle it in all cases; it 
+is possible for tests to pass in circumstances where they should fail, especially when the test code itself combines promises
+with callbacks or does not await a promise which rejects. This is an ongoing limitation of Zone.js. You will need to target ES2017 or lower so that Typescript downlevels your async/await in order for Razmin to work properly. For details see https://github.com/angular/angular/issues/31730
 
 ## Configuration
 
