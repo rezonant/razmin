@@ -8,7 +8,7 @@
     "build": "tsc -p .",
     "test": "npm run build && node ./dist/test/test",
     "test-break": "npm run build && node --inspect-brk ./dist/test/test",
-    "prepublish": "npm run test"
+    "prepublishOnly": "npm run test"
   },
   "author": "William Lahti",
   "license": "MIT",
