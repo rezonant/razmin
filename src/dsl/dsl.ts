@@ -3,8 +3,6 @@
  * providing developers the ability to tersely specify and run their tests.
  */
 
-require('source-map-support').install();
-
 import { TestSuite } from "../suite";
 import { Reporter } from '../reporting';
 import { TestExecutionSettings, TestExecutionSettingsSpec, SuiteSettings } from "../core";

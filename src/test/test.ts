@@ -1,4 +1,3 @@
-import "zone.js";
 import * as colors from 'colors/safe';
 
 import { TestResult } from "./test-result";
