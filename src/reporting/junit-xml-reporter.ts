@@ -29,7 +29,13 @@ export class JUnitXMLReporter implements Reporter {
             }))
         });
 
-        await mkdirp(path.dirname(this.outputFile));
+        try {
+            mkdirp.sync(path.dirname(this.outputFile));
+        } catch (e) {
+            console.error(`JUnit XML Reporter: Failed to make directory: ${path.dirname(this.outputFile)}: ${e.message}`);
+            return;
+        }
+
         fs.writeFileSync(this.outputFile, xml);
     }
 }
