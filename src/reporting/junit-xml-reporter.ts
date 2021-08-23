@@ -5,9 +5,14 @@ import { Test, TestResult } from "../test";
 import { Reporter } from "./reporter";
 import * as junit from 'junit-xml';
 import * as fs from 'fs';
+import * as path from 'path';
+import * as mkdirp from 'mkdirp';
 
 export class JUnitXMLReporter implements Reporter {
-    onSuiteFinished(suite : TestSuite, results : TestSuiteResults) {
+    constructor(readonly outputFile : string = 'test-results.xml') {
+    }
+
+    async onSuiteFinished(suite : TestSuite, results : TestSuiteResults) {
         results.subjectResults
         let xml = junit.getJunitXml({
             suites: results.subjectResults.map<junit.TestSuite>(subjectResult => ({
@@ -24,6 +29,7 @@ export class JUnitXMLReporter implements Reporter {
             }))
         });
 
-        fs.writeFileSync('test-results.xml', xml);
+        await mkdirp(path.dirname(this.outputFile));
+        fs.writeFileSync(this.outputFile, xml);
     }
 }
