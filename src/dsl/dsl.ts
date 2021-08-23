@@ -135,7 +135,7 @@ export async function buildSuite(paths : string[], options? : SuiteSettings, tes
         },
     });
     
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
         let requireGlob = include('require-glob');
         zone.run(async () => {
             try { 
@@ -183,7 +183,7 @@ async function describeRaw(description : string, testFactory : TestFactory, opti
 
     // TODO: use options
 
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
         zone.run(async () => {
             try { 
                 await testFactory(it);
