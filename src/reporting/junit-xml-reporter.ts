@@ -17,7 +17,7 @@ export class JUnitXMLReporter implements Reporter {
         let xml = junit.getJunitXml({
             suites: results.subjectResults.map<junit.TestSuite>(subjectResult => ({
                 testCases: subjectResult.tests.map<junit.TestCase>(test => ({
-                    name: test.description,
+                    name: `${subjectResult.description} ${test.description}`,
                     failures: test.passed ? [] : [ 
                         {
                             message: test.message
