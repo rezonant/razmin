@@ -802,7 +802,7 @@ export async function test() {
         ],        
         [
             'ancestor before() should complete before test is run',
-            { only: true },
+            { },
             async () => {
                 let message = '';
                 let value = '';
