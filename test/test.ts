@@ -1569,15 +1569,15 @@ async function runTests() {
                 let date = new Date();
                 let test = new Test('test', () => {
                     setTimeout(() => {
-                    }, 60);
+                    }, 5000);
                 });
 
-                let result = await test.run(new TestExecutionSettings({ timeout: 30 }), "Timeout-Failure-Test");
+                let result = await test.run(new TestExecutionSettings({ timeout: 500 }), "Timeout-Failure-Test");
 
                 expect(result.passed, 'the example test should fail')
                     .to.be.false;
 
-                expect(result.duration).to.be.lessThan(50);
+                expect(result.duration).to.be.lessThan(600);
 
                 expect(result.message, 'the failure message should mention a timeout')
                     .to.contain('Timed out');
