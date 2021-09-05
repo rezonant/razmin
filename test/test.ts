@@ -737,6 +737,52 @@ export async function test() {
                 expect(result.passed).to.eq(true);
                 expect(value).to.eq('B1B2Bb3Bb4Bb5Bb6');
             }
+        ],        
+        [
+            'ancestor before() should complete before test is run',
+            { only: true },
+            async () => {
+                let message = '';
+                let value = '';
+                let results = await suite(describe => {
+                    describe('thing1', () => {
+
+                        before(async () => {
+                            await delay(100);
+                            value += 'B'
+                        });
+
+                        describe('should do a thing', it => {
+
+                            it('will succeed', async () => value += '1');
+                            it('will succeed', async () => value += '2');
+
+                            describe('deeper things', it => {
+
+                                before(() => value += 'b');
+
+                                it('will succeed', async () => value += '3');
+                                it('will succeed', async () => value += '4');
+                                describe('even deeper', it => {
+                                    it('will succeed', async () => value += '5');
+                                    it('will succeed', async () => value += '6');
+                                })
+                            });
+                        });
+                    });
+                }, {
+                    reporting: { 
+                        reporters: [],
+                        exitAndReport: false
+                    }
+                });
+
+                let result = results.subjectResults.find(x => x.description == 'thing1 should do a thing');
+                expect(result).to.not.eq(undefined);
+
+                expect(result.passed).to.eq(true);
+                expect(value).to.eq('B1B2Bb3Bb4Bb5Bb6');
+            }
         ],
         [
             'after() should run after each test',
