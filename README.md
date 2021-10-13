@@ -312,14 +312,12 @@ export = function (config : karma.Config) {
         preprocessors: {
             '**/*.test.ts': ['webpack']
         },
-        plugins: [
-            'karma-webpack',
-            'karma-sourcemap-loader',
-            'karma-chrome-launcher'
-        ],
 
         webpack: {
             devtool: 'inline-source-map',
+            externals: {
+              fs: 'undefined'
+            },
             module: {
                 rules: [
                     {
