@@ -31,7 +31,7 @@ export class TestSubject implements LifecycleContainer {
 
     public async fireEvent(eventName : string) {
         if (this._parent)
-            this._parent.fireEvent(eventName);
+            await this._parent.fireEvent(eventName);
         let handlers : Function[] = this._lifecycleEvents[eventName] || [];
         for (let handler of handlers)
             await handler();
