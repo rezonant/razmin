@@ -296,6 +296,8 @@ Razmin test files (ie `**/*.test.ts`). Note that you cannot use `suite().include
 running Razmin tests with Karma. Note you will need a way to bundle your tests for running 
 within the browser- using `karma-webpack` does the trick.
 
+> **Note**: Your `describe()` tests must be within a `suite()` call for Karma to execute them. ([issue](https://github.com/rezonant/razmin/issues/3))
+
 Here's a sample `karma.conf.ts` that should get you started:
 
 ```typescript
