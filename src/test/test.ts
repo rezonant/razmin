@@ -1,4 +1,4 @@
-import "zone.js";
+// (BREAKING) import "zone.js"; // Let the caller import zone.js instead. BREAKING: v2.0.0
 import * as colors from 'colors/safe';
 
 import { TestResult } from "./test-result";

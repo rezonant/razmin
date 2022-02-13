@@ -3,6 +3,7 @@
 An async-aware testing framework for modern Javascript.
 
 ```ts
+import 'zone.js';
 import { describe, it } from 'razmin';
 
 describe('timeouts', () => {
