@@ -1,3 +1,6 @@
+import 'reflect-metadata';
+import 'zone.js';
+
 import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach, afterEach, before, after, skip, TestSubjectResult } from '../src';
 import { delay } from '../src/util';
 import { expect } from 'chai';
