@@ -114,7 +114,7 @@ export class Test {
                     let takesDone = this.function.length > 0;
 
                     if (takesDone) {
-                        await new Promise(async (res, rej) => {
+                        await new Promise<void>(async (res, rej) => {
                             let done : DoneCallback = Object.assign(
                                 () => res(), 
                                 { fail: () => rej() }
