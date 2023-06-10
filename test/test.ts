@@ -5,10 +5,9 @@ import { suite, Test, TestExecutionSettings, TestSuite, TestSubject, beforeEach,
 import { delay } from '../src/util';
 import { expect } from 'chai';
 import * as colors from 'colors/safe';
-import { Observable, of, interval, Subscription } from 'rxjs';
+import { of, interval, Subscription } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { TestReportingSettings } from '../src/core/test-reporting-settings';
-import { resolve } from 'dns';
 
 interface SanityTestOptions {
     skip?: boolean;
