@@ -24,10 +24,10 @@
     "chai": "^4.1.2",
     "reflect-metadata": "^0.1.13",
     "typescript": "^4.5.5",
-    "zone.js": "^0.11.3"
+    "zone.js": "^0.13.0"
   },
   "peerDependencies": {
-    "zone.js": "^0.11.3"
+    "zone.js": "^0.11.3 || ^0.12.0 || ^0.13.0"
   },
   "dependencies": {
     "callsites": "^2.0.0",
