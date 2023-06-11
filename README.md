@@ -1,5 +1,20 @@
 # Razmin [![CircleCI](https://circleci.com/gh/rezonant/razmin.svg?style=svg)](https://circleci.com/gh/rezonant/razmin)
 
+> ⚠️ **This library is in maintenance mode**  
+> As of Node.js 16, async `import()` and other system-level constructs require `Promise` to be unpatched. 
+> This prevents Zone-based isolation from working properly. If you are not using Node.js or you do not require
+> async `import()`, this library continues to work as expected in those versions, but there is not a clear path to
+> restoring the functionality in those scenarios. `Zone.js` 0.13.0 introduced a Node.js-specific variant for dealing 
+> with this by patching only `Promise.then`, but this prevents unhandled promise rejections from being properly 
+> observable by `Razmin`. One solution may be to use `async_hooks` in this scenario, but having multiple 
+> execution-context mechanisms would require a significant rework of Razmin, and still there are corner cases which 
+> cannot be covered. Another solution would be to run each test in its own process, but [Jest](https://jestjs.io/)
+> already does this and benefits from a large community of users and developers. 
+>
+> Given these facts, we've decided to retire Razmin in favor of Jest for new projects, and have already begun to 
+> phase out our usage of this testing library. We recommend you do the same. Razmin may still receive minor 
+> maintenance changes as needed, but no new feature development will occur.
+
 An async-aware testing framework for modern Javascript.
 
 ```ts
