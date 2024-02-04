@@ -127,7 +127,7 @@ export class Test {
                             }
                         });
                     } else {
-                        await this.function();
+                        await this.function(undefined as any);
                     }
 
                     executionCompleted = true;

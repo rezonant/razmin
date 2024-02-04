@@ -13,14 +13,14 @@ export interface DoneCallback {
 }
 
 export interface AsyncTestFunction {
-    (done? : DoneCallback) : Promise<void>;
+    (done : DoneCallback) : Promise<void>;
 }
 
 export interface SyncTestFunction {
     /**
      * @param done An optional callback to call when the test completes (or fails)
      */
-    (done? : DoneCallback) : void;
+    (done : DoneCallback) : void;
 }
 
 export type TestFunction = AsyncTestFunction | SyncTestFunction;
